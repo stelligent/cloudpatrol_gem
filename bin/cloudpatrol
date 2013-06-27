@@ -1,0 +1,88 @@
+#!/usr/bin/env ruby
+require 'gli'
+
+begin # XXX: Remove this begin/rescue before distributing your app
+require 'cloudpatrol'
+rescue LoadError
+  exit 64
+end
+
+include GLI::App
+
+program_desc 'Helps you keep Amazon cloud clean'
+
+version Cloudpatrol::VERSION
+
+# desc 'AWS Identity and Access Management'
+# command "iam" do |c|
+#   c.desc "Deletes all IAM users that do not have MFA enabled. Users with underscore (_) in their names are kept."
+#   c.command "clean-users" do |subc|
+#     subc.action do |global_options,options,args|
+#       puts "iam mfa-sanitize command ran"
+#       puts "pending"
+#     end
+#   end
+# end
+
+desc 'AWS Elastic Compute Cloud'
+command "ec2" do |c|
+  c.desc "specifies maximum age"
+  c.default_value 5
+  c.arg_name "number"
+  c.flag [:d, :days]
+
+  c.desc "Deletes keypairs that have existed for configurable number of days"
+  c.command "clean-keypairs" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "you had asked for deleting keypairs older than #{options[:days]}"
+    end
+  end
+
+  c.desc "Deletes instances that have existed for configurable number of days"
+  c.command "clean-instances" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "you had asked for deleting instances older than #{options[:days]}"
+    end
+  end
+end
+
+# desc 'AWS OpsWorks'
+# arg_name 'Describe arguments to opsworks here'
+# command :opsworks do |c|
+#   c.action do |global_options,options,args|
+#     puts "opsworks command ran"
+#   end
+# end
+
+# desc 'AWS CloudFormation'
+# arg_name 'Describe arguments to cloudformation here'
+# command :cloudformation do |c|
+#   c.action do |global_options,options,args|
+#     puts "cloudformation command ran"
+#   end
+# end
+
+pre do |global,command,options,args|
+  # Pre logic here
+  # Return true to proceed; false to abort and not call the
+  # chosen command
+  # Use skips_pre before a command to skip this block
+  # on that command only
+  true
+end
+
+post do |global,command,options,args|
+  # Post logic here
+  # Use skips_post before a command to skip this
+  # block on that command only
+end
+
+on_error do |exception|
+  # Error logic here
+  # return false to skip default error handling
+  true
+end
+
+exit run(ARGV)
