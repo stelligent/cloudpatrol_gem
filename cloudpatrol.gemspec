@@ -1,7 +1,7 @@
 # Ensure we require the local version and not one we might have installed already
 require File.join([File.dirname(__FILE__),'lib','cloudpatrol','version.rb'])
 spec = Gem::Specification.new do |s|
-  s.name = 'CloudPatrol'
+  s.name = 'cloudpatrol'
   s.version = Cloudpatrol::VERSION
   s.author = 'Stelligent'
   s.email = 'developers@stelligent.com'
@@ -20,8 +20,10 @@ lib/cloudpatrol.rb
   s.rdoc_options << '--title' << 'cloudpatrol' << '--main' << 'README.rdoc' << '-ri'
   s.bindir = 'bin'
   s.executables << 'cloudpatrol'
+  s.required_ruby_version = '~> 2.0.0'
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('aruba')
+  s.add_development_dependency('aws-sdk', '~> 1.11.0')
   s.add_runtime_dependency('gli','2.6.0')
 end

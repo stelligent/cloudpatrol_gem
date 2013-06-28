@@ -13,16 +13,24 @@ program_desc 'Helps you keep Amazon cloud clean'
 
 version Cloudpatrol::VERSION
 
-# desc 'AWS Identity and Access Management'
-# command "iam" do |c|
-#   c.desc "Deletes all IAM users that do not have MFA enabled. Users with underscore (_) in their names are kept."
-#   c.command "clean-users" do |subc|
-#     subc.action do |global_options,options,args|
-#       puts "iam mfa-sanitize command ran"
-#       puts "pending"
-#     end
-#   end
-# end
+desc 'Specify AWS Access Key ID'
+arg_name 'string'
+flag :aws_access_key_id
+
+desc 'Specify AWS Secret Access Key'
+arg_name 'string'
+flag :aws_secret_access_key
+
+desc 'AWS Identity and Access Management'
+command "iam" do |c|
+  c.desc "Deletes all IAM users that do not have MFA enabled. Users with underscore (_) in their names are kept."
+  c.command "clean-users" do |subc|
+    subc.action do |global_options,options,args|
+      puts "iam clean-users command ran"
+      puts "pending"
+    end
+  end
+end
 
 desc 'AWS Elastic Compute Cloud'
 command "ec2" do |c|
@@ -31,38 +39,102 @@ command "ec2" do |c|
   c.arg_name "number"
   c.flag [:d, :days]
 
-  c.desc "Deletes keypairs that have existed for configurable number of days"
+  c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
   c.command "clean-keypairs" do |subc|
     subc.action do |global_options,options,args|
       puts "pending"
-      puts "you had asked for deleting keypairs older than #{options[:days]}"
+      puts "deleting keypairs older than #{options[:days]}"
     end
   end
 
-  c.desc "Deletes instances that have existed for configurable number of days"
+  c.desc "Deletes Security Groups that are no longer being used by AWS EC2 Instances"
+  c.command "clean-security-groups" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting unused security groups"
+    end
+  end
+
+  c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
       puts "pending"
-      puts "you had asked for deleting instances older than #{options[:days]}"
+      puts "deleting instances older than #{options[:days]}"
+    end
+  end
+
+  c.desc "Starts AWS EC2 Instances"
+  c.command "start-instances" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "starting instances"
+    end
+  end
+
+  c.desc "Stops AWS EC2 Instances"
+  c.command "stop-instances" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "stopping instances"
     end
   end
 end
 
-# desc 'AWS OpsWorks'
-# arg_name 'Describe arguments to opsworks here'
-# command :opsworks do |c|
-#   c.action do |global_options,options,args|
-#     puts "opsworks command ran"
-#   end
-# end
+desc 'AWS OpsWorks'
+command "opsworks" do |c|
+  c.desc "specifies maximum age"
+  c.default_value 5
+  c.arg_name "number"
+  c.flag [:d, :days]
 
-# desc 'AWS CloudFormation'
-# arg_name 'Describe arguments to cloudformation here'
-# command :cloudformation do |c|
-#   c.action do |global_options,options,args|
-#     puts "cloudformation command ran"
-#   end
-# end
+  c.desc "Deletes AWS OpsWorks apps that have existed for configurable number of days"
+  c.command "clean-apps" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting apps older than #{options[:days]}"
+    end
+  end
+
+  c.desc "Deletes AWS OpsWorks instances that have existed for configurable number of days"
+  c.command "clean-instances" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting instances older than #{options[:days]}"
+    end
+  end
+
+  c.desc "Deletes AWS OpsWorks layers that have existed for configurable number of days"
+  c.command "clean-layers" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting layers older than #{options[:days]}"
+    end
+  end
+
+  c.desc "Deletes AWS OpsWorks stacks that have existed for configurable number of days"
+  c.command "clean-stacks" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting stacks older than #{options[:days]}"
+    end
+  end
+end
+
+desc 'AWS CloudFormation'
+command "cloudformation" do |c|
+  c.desc "specifies maximum age"
+  c.default_value 5
+  c.arg_name "number"
+  c.flag [:d, :days]
+
+  c.desc "Deletes AWS CloudFormation stacks that have existed for configurable number of days"
+  c.command "clean-stacks" do |subc|
+    subc.action do |global_options,options,args|
+      puts "pending"
+      puts "deleting stacks older than #{options[:days]}"
+    end
+  end
+end
 
 pre do |global,command,options,args|
   # Pre logic here
@@ -70,6 +142,8 @@ pre do |global,command,options,args|
   # chosen command
   # Use skips_pre before a command to skip this block
   # on that command only
+  ::AWS_ACCESS_KEY_ID = global[:aws_access_key_id] # or fetch from config, pending
+  ::AWS_SECRET_ACCESS_KEY = global[:aws_secret_access_key] # or fetch from config, pending
   true
 end
 
