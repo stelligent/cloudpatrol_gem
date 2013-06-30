@@ -1,6 +1,3 @@
 = cloudpatrol
 
-Describe your project here
-
 :include:cloudpatrol.rdoc
-

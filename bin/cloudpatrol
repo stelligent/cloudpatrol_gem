@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'gli'
 
-begin # XXX: Remove this begin/rescue before distributing your app
+begin # Remove this begin/rescue before distributing the app
 require 'cloudpatrol'
 rescue LoadError
   exit 64
@@ -42,8 +42,7 @@ command "ec2" do |c|
   c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
   c.command "clean-keypairs" do |subc|
     subc.action do |global_options,options,args|
-      puts "pending"
-      puts "deleting keypairs older than #{options[:days]}"
+      puts "doesn't work"
     end
   end
 
@@ -137,20 +136,12 @@ command "cloudformation" do |c|
 end
 
 pre do |global,command,options,args|
-  # Pre logic here
-  # Return true to proceed; false to abort and not call the
-  # chosen command
-  # Use skips_pre before a command to skip this block
-  # on that command only
-  ::AWS_ACCESS_KEY_ID = global[:aws_access_key_id] # or fetch from config, pending
-  ::AWS_SECRET_ACCESS_KEY = global[:aws_secret_access_key] # or fetch from config, pending
+  ::AWS_ACCESS_KEY_ID = global[:aws_access_key_id] or return false
+  ::AWS_SECRET_ACCESS_KEY = global[:aws_secret_access_key] or return false
   true
 end
 
 post do |global,command,options,args|
-  # Post logic here
-  # Use skips_post before a command to skip this
-  # block on that command only
 end
 
 on_error do |exception|
