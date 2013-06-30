@@ -20,13 +20,13 @@ module Cloudpatrol
       end
     end
 
-    module CF
-      GATE = ::AWS::CloudFormation.new
-    end
+    # module CF
+    #   GATE = ::AWS::CloudFormation.new
+    # end
 
-    module OW
-      GATE = ::AWS::OpsWorks.new.client
-    end
+    # module OW
+    #   GATE = ::AWS::OpsWorks.new.client
+    # end
 
     # def self.delete_expired_keypairs
     # end
