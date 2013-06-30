@@ -11,6 +11,7 @@ spec = Gem::Specification.new do |s|
 # Add your other files here if you make them
   s.files = %w(
 bin/cloudpatrol
+lib/cloudpatrol/tasks.rb
 lib/cloudpatrol/version.rb
 lib/cloudpatrol.rb
   )

@@ -3,10 +3,14 @@ module Cloudpatrol
     module EC2
     end
 
-    module IAM
-      def self.clean_users
+    class IAM
+      def initialize
+        @gate = ::AWS.iam(access_key_id: $access_key_id, secret_access_key: $secret_access_key)
+      end
+
+      def clean_users
         deleted = 0
-        ::AWS.iam.users.each do |user|
+        @gate.users.each do |user|
           unless user.name =~ /_/ or user.mfa_devices.count > 0
             deleted += 1
             user.delete
