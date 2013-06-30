@@ -136,8 +136,8 @@ command "cloudformation" do |c|
 end
 
 pre do |global,command,options,args|
-  ::AWS_ACCESS_KEY_ID = global[:aws_access_key_id] or return false
-  ::AWS_SECRET_ACCESS_KEY = global[:aws_secret_access_key] or return false
+  $access_key_id = global[:aws_access_key_id] or return false
+  $secret_access_key = global[:aws_secret_access_key] or return false
   true
 end
 
