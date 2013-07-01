@@ -48,7 +48,17 @@ module Cloudpatrol::Task
       @gate = ::AWS::OpsWorks::Client.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
     end
 
-    def clean_apps
+    def clean_apps allowed_age
+      deleted = 0
+      @gate.describe_stacks[:stacks].each do |stack|
+        @gate.describe_apps(stack_id: stack[:stack_id])[:apps].each do |app|
+          if (Time.now - Time.parse(app[:created_at])).to_i > allowed_age * 24 * 60 * 60
+            deleted += 1
+            @gate.delete_app app_id: app[:app_id]
+          end
+        end
+      end
+      return deleted
     end
 
     def clean_instances
