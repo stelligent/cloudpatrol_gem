@@ -43,15 +43,38 @@ module Cloudpatrol::Task
     end
   end
 
+  class OpsWorks
+    def initialize access_key_id, secret_access_key
+      @gate = ::AWS::OpsWorks::Client.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+    end
+
+    def clean_apps
+    end
+
+    def clean_instances
+    end
+
+    def clean_layers
+    end
+
+    def clean_stacks allowed_age
+      deleted = 0
+      @gate.describe_stacks[:stacks].each do |stack|
+        if (Time.now - Time.parse(stack[:created_at])).to_i > allowed_age * 24 * 60 * 60
+          deleted += 1
+          @gate.delete_stack stack_id: stack[:stack_id]
+        end
+      end
+      return deleted
+    end
+  end
+
   # module CF
   #   GATE = ::AWS::CloudFormation.new
   # end
 
   # module OW
   #   GATE = ::AWS::OpsWorks.new.client
-  # end
-
-  # def self.delete_expired_keypairs
   # end
 
   # def self.delete_ec2_instances
