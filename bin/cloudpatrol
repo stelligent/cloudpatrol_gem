@@ -102,16 +102,18 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      puts "pending"
-      puts "deleting instances older than #{options[:days]}"
+      raise "Specify max age for an instance with -d option" unless options[:days]
+      count = Cloudpatrol::Task::OpsWorks.new($access_key_id, $secret_access_key).clean_instances options[:days].to_i
+      puts "Deleted #{count} OpsWorks instances"
     end
   end
 
   c.desc "Deletes AWS OpsWorks layers that have existed for configurable number of days"
   c.command "clean-layers" do |subc|
     subc.action do |global_options,options,args|
-      puts "pending"
-      puts "deleting layers older than #{options[:days]}"
+      raise "Specify max age for a layer with -d option" unless options[:days]
+      count = Cloudpatrol::Task::OpsWorks.new($access_key_id, $secret_access_key).clean_layers options[:days].to_i
+      puts "Deleted #{count} OpsWorks layers"
     end
   end
 

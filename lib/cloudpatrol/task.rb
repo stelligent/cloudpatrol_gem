@@ -61,10 +61,30 @@ module Cloudpatrol::Task
       return deleted
     end
 
-    def clean_instances
+    def clean_instances allowed_age
+      deleted = 0
+      @gate.describe_stacks[:stacks].each do |stack|
+        @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
+          if (Time.now - Time.parse(instance[:created_at])).to_i > allowed_age * 24 * 60 * 60
+            deleted += 1
+            @gate.delete_instance instance_id: instance[:instance_id]
+          end
+        end
+      end
+      return deleted
     end
 
-    def clean_layers
+    def clean_layers allowed_age
+      deleted = 0
+      @gate.describe_stacks[:stacks].each do |stack|
+        @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+          if (Time.now - Time.parse(layer[:created_at])).to_i > allowed_age * 24 * 60 * 60
+            deleted += 1
+            @gate.delete_layer layer_id: layer[:layer_id]
+          end
+        end
+      end
+      return deleted
     end
 
     def clean_stacks allowed_age
@@ -81,10 +101,6 @@ module Cloudpatrol::Task
 
   # module CF
   #   GATE = ::AWS::CloudFormation.new
-  # end
-
-  # module OW
-  #   GATE = ::AWS::OpsWorks.new.client
   # end
 
   # def self.delete_ec2_instances
@@ -104,22 +120,6 @@ module Cloudpatrol::Task
   #   else
   #     "Finished. No stacks deleted."
   #   end
-  # end
-
-  # def self.delete_opsworks_apps
-  #   # pending
-  # end
-
-  # def self.delete_opsworks_instances
-  #   # pending
-  # end
-
-  # def self.delete_opsworks_layers
-  #   # pending
-  # end
-
-  # def self.delete_opsworks_stacks
-  #   # pending
   # end
 
   # def self.stop_ec2_instances
