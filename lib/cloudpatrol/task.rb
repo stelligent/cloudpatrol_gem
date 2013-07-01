@@ -99,27 +99,24 @@ module Cloudpatrol::Task
     end
   end
 
-  # module CF
-  #   GATE = ::AWS::CloudFormation.new
-  # end
+  class CloudFormation
+    def initialize access_key_id, secret_access_key
+      @gate = ::AWS::CloudFormation.new(access_key_id: access_key_id, secret_access_key: secret_access_key)
+    end
+
+    def clean_stacks allowed_age
+      deleted = 0
+      @gate.stacks.each do |stack|
+        if (Time.now - stack.creation_time).to_i > allowed_age * 24 * 60 * 60
+          deleted += 1
+          stack.delete
+        end
+      end
+      return deleted
+    end
+  end
 
   # def self.delete_ec2_instances
-  # end
-
-  # def self.delete_cloudformation_stacks
-  #   puts "Deleting CloudFormation stacks older than #{TODO}"
-  #   deleted = []
-  #   @@cf.stacks.each do |stack|
-  #     if (Time.now - stack.creation_time) > TODO.days
-  #       deleted << stack.name
-  #       stack.delete
-  #     end
-  #   end
-  #   puts if deleted.size > 0
-  #     "Finished. Deleted stacks: #{deleted.join(", ")}"
-  #   else
-  #     "Finished. No stacks deleted."
-  #   end
   # end
 
   # def self.stop_ec2_instances

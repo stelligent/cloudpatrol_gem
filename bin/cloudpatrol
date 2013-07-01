@@ -137,8 +137,9 @@ command "cloudformation" do |c|
   c.desc "Deletes AWS CloudFormation stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
     subc.action do |global_options,options,args|
-      puts "pending"
-      puts "deleting stacks older than #{options[:days]}"
+      raise "Specify max age for a stack with -d option" unless options[:days]
+      count = Cloudpatrol::Task::CloudFormation.new($access_key_id, $secret_access_key).clean_stacks options[:days].to_i
+      puts "Deleted #{count} CloudFormation stacks"
     end
   end
 end
