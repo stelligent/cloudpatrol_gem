@@ -21,12 +21,16 @@ desc 'Specify AWS Secret Access Key'
 arg_name 'string'
 flag :aws_secret_access_key
 
+desc 'Specify region'
+arg_name 'string'
+flag :region
+
 desc 'AWS Identity and Access Management'
 command "iam" do |c|
   c.desc "Deletes all IAM users that do not have MFA enabled. Users with underscore (_) in their names are kept."
   c.command "clean-users" do |subc|
     subc.action do |global_options,options,args|
-      count = Cloudpatrol::Tasks::IAM.new.clean_users
+      count = Cloudpatrol::Task::IAM.new($access_key_id, $secret_access_key).clean_users
       puts "Deleted users: #{count}"
     end
   end
@@ -39,18 +43,18 @@ command "ec2" do |c|
   c.arg_name "number"
   c.flag [:d, :days]
 
-  c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
-  c.command "clean-keypairs" do |subc|
-    subc.action do |global_options,options,args|
-      puts "doesn't work"
-    end
-  end
+  # c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
+  # c.command "clean-keypairs" do |subc|
+  #   subc.action do |global_options,options,args|
+  #     puts "doesn't work currently"
+  #   end
+  # end
 
-  c.desc "Deletes Security Groups that are no longer being used by AWS EC2 Instances"
+  c.desc "Deletes Security Groups that are no longer being used by AWS EC2 Instances (notice that Security Groups featured in any inbound permission rules will not be deleted)"
   c.command "clean-security-groups" do |subc|
     subc.action do |global_options,options,args|
-      puts "pending"
-      puts "deleting unused security groups"
+      count = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).clean_security_groups
+      puts "Deleted security groups: #{count}"
     end
   end
 
@@ -138,6 +142,7 @@ end
 pre do |global,command,options,args|
   $access_key_id = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
   $secret_access_key = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
+  $region = global[:region] || "us-west-2"
   true
 end
 
