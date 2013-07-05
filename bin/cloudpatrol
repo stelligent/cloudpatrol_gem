@@ -147,7 +147,7 @@ end
 pre do |global,command,options,args|
   $access_key_id = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
   $secret_access_key = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
-  $region = global[:region] || "us-west-2"
+  $region = global[:region] || "us-east-1"
   true
 end
 
