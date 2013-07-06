@@ -43,6 +43,17 @@ module Cloudpatrol::Task
       result
     end
 
+    def clean_instances allowed_age
+      deleted = []
+      @gate.instances.each do |instance|
+        if (Time.now - instance.launch_time).to_i > allowed_age.days and instance.status != :terminated
+          deleted << instance
+          instance.delete
+        end
+      end
+      deleted
+    end
+
     def clean_security_groups
       deleted = []
       protected_groups = []
@@ -76,7 +87,7 @@ module Cloudpatrol::Task
       deleted = []
       @gate.describe_stacks[:stacks].each do |stack|
         @gate.describe_apps(stack_id: stack[:stack_id])[:apps].each do |app|
-          if (Time.now - Time.parse(app[:created_at])).to_i > allowed_age * 24 * 60 * 60
+          if (Time.now - Time.parse(app[:created_at])).to_i > allowed_age.days
             deleted << app
             @gate.delete_app app_id: app[:app_id]
           end
@@ -89,7 +100,7 @@ module Cloudpatrol::Task
       deleted = []
       @gate.describe_stacks[:stacks].each do |stack|
         @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
-          if (Time.now - Time.parse(instance[:created_at])).to_i > allowed_age * 24 * 60 * 60
+          if (Time.now - Time.parse(instance[:created_at])).to_i > allowed_age.days
             deleted << instance
             @gate.delete_instance instance_id: instance[:instance_id]
           end
@@ -102,7 +113,7 @@ module Cloudpatrol::Task
       deleted = []
       @gate.describe_stacks[:stacks].each do |stack|
         @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-          if (Time.now - Time.parse(layer[:created_at])).to_i > allowed_age * 24 * 60 * 60
+          if (Time.now - Time.parse(layer[:created_at])).to_i > allowed_age.days
             deleted << layer
             @gate.delete_layer layer_id: layer[:layer_id]
           end
@@ -114,7 +125,7 @@ module Cloudpatrol::Task
     def clean_stacks allowed_age
       deleted = []
       @gate.describe_stacks[:stacks].each do |stack|
-        if (Time.now - Time.parse(stack[:created_at])).to_i > allowed_age * 24 * 60 * 60
+        if (Time.now - Time.parse(stack[:created_at])).to_i > allowed_age.days
           deleted << stack
           @gate.delete_stack stack_id: stack[:stack_id]
         end

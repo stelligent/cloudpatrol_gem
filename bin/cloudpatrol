@@ -9,7 +9,7 @@ end
 
 include GLI::App
 
-program_desc 'Helps you keep Amazon cloud clean'
+program_desc "Helps you keep Amazon cloud clean"
 
 version Cloudpatrol::VERSION
 
@@ -43,22 +43,22 @@ command "ec2" do |c|
   c.arg_name "number"
   c.flag [:d, :days]
 
-  # These two actions need a feature for constant monitoring of creation time.
+  # This action needs a feature for constant monitoring of creation time.
   # Amazon doesn't keep record of creation time for key pairs and instances.
+  c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
+  c.command "clean-keypairs" do |subc|
+    subc.action do |global_options,options,args|
+      puts "doesn't work"
+    end
+  end
 
-  # c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
-  # c.command "clean-keypairs" do |subc|
-  #   subc.action do |global_options,options,args|
-  #     puts "doesn't work"
-  #   end
-  # end
-
-  # c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
-  # c.command "clean-instances" do |subc|
-  #   subc.action do |global_options,options,args|
-  #     puts "doesn't work"
-  #   end
-  # end
+  c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
+  c.command "clean-instances" do |subc|
+    subc.action do |global_options,options,args|
+      result = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).clean_instances
+      puts "Deleted #{result.count} instances"
+    end
+  end
 
   c.desc "Deletes Security Groups that are no longer being used by AWS EC2 Instances (notice that Security Groups featured in any inbound permission rules will not be deleted)"
   c.command "clean-security-groups" do |subc|

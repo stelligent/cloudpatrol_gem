@@ -1,4 +1,3 @@
-# Ensure we require the local version and not one we might have installed already
 require File.join([File.dirname(__FILE__),'lib','cloudpatrol','version.rb'])
 spec = Gem::Specification.new do |s|
   s.name = 'cloudpatrol'
@@ -8,16 +7,16 @@ spec = Gem::Specification.new do |s|
   s.homepage = 'http://stelligent.com'
   s.platform = Gem::Platform::RUBY
   s.summary = 'Command-line tool that helps you keep Amazon cloud clean'
-# Add your other files here if you make them
   s.files = %w(
 bin/cloudpatrol
 lib/cloudpatrol/task.rb
 lib/cloudpatrol/version.rb
+lib/core_ext/integer.rb
 lib/cloudpatrol.rb
   )
   s.require_paths << 'lib'
   s.has_rdoc = true
-  s.extra_rdoc_files = ['README.rdoc','cloudpatrol.rdoc']
+  s.extra_rdoc_files = [ 'README.rdoc', 'cloudpatrol.rdoc' ]
   s.rdoc_options << '--title' << 'cloudpatrol' << '--main' << 'README.rdoc' << '-ri'
   s.bindir = 'bin'
   s.executables << 'cloudpatrol'
