@@ -27,7 +27,7 @@ flag :region
 
 desc 'AWS Identity and Access Management'
 command "iam" do |c|
-  c.desc "Deletes all IAM users that do not have MFA enabled. Users with underscore (_) in their names are kept."
+  c.desc "Deletes all IAM users that do not have MFA enabled. Usernames that begin with underscore (_) are kept."
   c.command "clean-users" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol::Task::IAM.new($access_key_id, $secret_access_key).clean_users
