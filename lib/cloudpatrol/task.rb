@@ -14,7 +14,7 @@ module Cloudpatrol::Task
           user.delete!
         end
       end
-      return deleted
+      deleted
     end
   end
 
@@ -57,7 +57,7 @@ module Cloudpatrol::Task
           sg.delete
         end
       end
-      return deleted
+      deleted
     end
   end
 
@@ -76,7 +76,7 @@ module Cloudpatrol::Task
           end
         end
       end
-      return deleted
+      deleted
     end
 
     def clean_instances allowed_age
@@ -89,7 +89,7 @@ module Cloudpatrol::Task
           end
         end
       end
-      return deleted
+      deleted
     end
 
     def clean_layers allowed_age
@@ -102,7 +102,7 @@ module Cloudpatrol::Task
           end
         end
       end
-      return deleted
+      deleted
     end
 
     def clean_stacks allowed_age
@@ -113,7 +113,7 @@ module Cloudpatrol::Task
           @gate.delete_stack stack_id: stack[:stack_id]
         end
       end
-      return deleted
+      deleted
     end
   end
 
@@ -130,7 +130,7 @@ module Cloudpatrol::Task
           stack.delete
         end
       end
-      return deleted
+      deleted
     end
   end
 
