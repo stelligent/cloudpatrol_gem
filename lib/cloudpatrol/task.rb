@@ -1,5 +1,7 @@
 require 'aws'
 
+# TODO: add afterhook for DynamoDB logging
+
 module Cloudpatrol::Task
   class IAM
     def initialize access_key_id, secret_access_key
@@ -58,6 +60,10 @@ module Cloudpatrol::Task
         end
       end
       deleted
+    end
+
+    def release_elastic_ip
+      @gate.elastic_ips.create
     end
   end
 
@@ -133,9 +139,6 @@ module Cloudpatrol::Task
       deleted
     end
   end
-
-  # def self.delete_ec2_instances
-  # end
 
   # def self.delete_ports_assigned_to_default
   #   # pending

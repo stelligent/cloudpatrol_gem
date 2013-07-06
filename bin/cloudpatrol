@@ -43,10 +43,20 @@ command "ec2" do |c|
   c.arg_name "number"
   c.flag [:d, :days]
 
+  # These two actions need a feature for constant monitoring of creation time.
+  # Amazon doesn't keep record of creation time for key pairs and instances.
+
   # c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
   # c.command "clean-keypairs" do |subc|
   #   subc.action do |global_options,options,args|
-  #     puts "doesn't work currently"
+  #     puts "doesn't work"
+  #   end
+  # end
+
+  # c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
+  # c.command "clean-instances" do |subc|
+  #   subc.action do |global_options,options,args|
+  #     puts "doesn't work"
   #   end
   # end
 
@@ -57,14 +67,6 @@ command "ec2" do |c|
       puts "Deleted #{result.count} security groups"
     end
   end
-
-  # c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
-  # c.command "clean-instances" do |subc|
-  #   subc.action do |global_options,options,args|
-  #     puts "pending"
-  #     puts "deleting instances older than #{options[:days]}"
-  #   end
-  # end
 
   c.desc "Starts AWS EC2 Instances"
   c.command "start-instances" do |subc|
@@ -79,6 +81,14 @@ command "ec2" do |c|
     subc.action do |global_options,options,args|
       result = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).stop_instances
       puts "Stopped #{result.count} instances"
+    end
+  end
+
+  c.desc "Release EC2 Elastic IP not associated with an instance"
+  c.command "release-elastic-ip" do |subc|
+    subc.action do |global_options, options, args|
+      result = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).release_elastic_ip
+      puts "Released Elastic IP #{result.ip_address}"
     end
   end
 end
