@@ -23,6 +23,24 @@ module Cloudpatrol::Task
       @gate = ::AWS::EC2.new(access_key_id: access_key_id, secret_access_key: secret_access_key, region: region)
     end
 
+    def start_instances
+      result = []
+      @gate.instances.each do |instance|
+        result << instance
+        instance.start
+      end
+      result
+    end
+
+    def stop_instances
+      result = []
+      @gate.instances.each do |instance|
+        result << instance
+        instance.stop
+      end
+      result
+    end
+
     def clean_security_groups
       deleted = []
       protected_groups = []
@@ -117,18 +135,6 @@ module Cloudpatrol::Task
   end
 
   # def self.delete_ec2_instances
-  # end
-
-  # def self.stop_ec2_instances
-  #   @@ec2.instances.each do |instance|
-  #     instance.stop
-  #   end
-  # end
-
-  # def self.start_ec2_instances
-  #   @@ec2.instances.each do |instance|
-  #     instance.start
-  #   end
   # end
 
   # def self.delete_ports_assigned_to_default

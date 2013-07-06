@@ -66,21 +66,21 @@ command "ec2" do |c|
   #   end
   # end
 
-  # c.desc "Starts AWS EC2 Instances"
-  # c.command "start-instances" do |subc|
-  #   subc.action do |global_options,options,args|
-  #     puts "pending"
-  #     puts "starting instances"
-  #   end
-  # end
+  c.desc "Starts AWS EC2 Instances"
+  c.command "start-instances" do |subc|
+    subc.action do |global_options,options,args|
+      result = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).start_instances
+      puts "Started #{result.count} instances"
+    end
+  end
 
-  # c.desc "Stops AWS EC2 Instances"
-  # c.command "stop-instances" do |subc|
-  #   subc.action do |global_options,options,args|
-  #     puts "pending"
-  #     puts "stopping instances"
-  #   end
-  # end
+  c.desc "Stops AWS EC2 Instances"
+  c.command "stop-instances" do |subc|
+    subc.action do |global_options,options,args|
+      result = Cloudpatrol::Task::EC2.new($access_key_id, $secret_access_key, $region).stop_instances
+      puts "Stopped #{result.count} instances"
+    end
+  end
 end
 
 desc 'AWS OpsWorks'
