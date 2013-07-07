@@ -2,7 +2,7 @@
 require 'gli'
 
 begin # Remove this begin/rescue before distributing the app
-require 'cloudpatrol'
+  require 'cloudpatrol'
 rescue LoadError
   exit 64
 end
@@ -41,7 +41,7 @@ command "ec2" do |c|
   c.desc "specifies maximum age"
   c.default_value 5
   c.arg_name "number"
-  c.flag [:d, :days]
+  c.flag [ :d, :days ]
 
   # This action needs a feature for constant monitoring of creation time.
   # Amazon doesn't keep record of creation time for key pairs and instances.
@@ -98,7 +98,7 @@ command "opsworks" do |c|
   c.desc "specifies maximum age"
   c.default_value 5
   c.arg_name "number"
-  c.flag [:d, :days]
+  c.flag [ :d, :days ]
 
   c.desc "Deletes AWS OpsWorks apps that have existed for configurable number of days"
   c.command "clean-apps" do |subc|
@@ -142,7 +142,7 @@ command "cloudformation" do |c|
   c.desc "specifies maximum age"
   c.default_value 5
   c.arg_name "number"
-  c.flag [:d, :days]
+  c.flag [ :d, :days ]
 
   c.desc "Deletes AWS CloudFormation stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
@@ -154,14 +154,14 @@ command "cloudformation" do |c|
   end
 end
 
-pre do |global,command,options,args|
+pre do |global, command, options, args|
   $access_key_id = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
   $secret_access_key = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
   $region = global[:region] || "us-east-1"
   true
 end
 
-post do |global,command,options,args|
+post do |global, command, options, args|
 end
 
 on_error do |exception|

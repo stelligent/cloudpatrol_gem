@@ -1,4 +1,4 @@
-require File.join([File.dirname(__FILE__),'lib','cloudpatrol','version.rb'])
+require File.join([ File.dirname(__FILE__), 'lib', 'cloudpatrol', 'version.rb' ])
 spec = Gem::Specification.new do |s|
   s.name = 'cloudpatrol'
   s.version = Cloudpatrol::VERSION
@@ -9,6 +9,10 @@ spec = Gem::Specification.new do |s|
   s.summary = 'Command-line tool that helps you keep Amazon cloud clean'
   s.files = %w(
 bin/cloudpatrol
+lib/cloudpatrol/task/cloud_formation.rb
+lib/cloudpatrol/task/ec2.rb
+lib/cloudpatrol/task/iam.rb
+lib/cloudpatrol/task/ops_works.rb
 lib/cloudpatrol/task.rb
 lib/cloudpatrol/version.rb
 lib/core_ext/integer.rb
