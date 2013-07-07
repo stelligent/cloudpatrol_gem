@@ -30,8 +30,8 @@ command "iam" do |c|
   c.desc "Deletes all IAM users that do not have MFA enabled. Usernames that begin with underscore (_) are kept."
   c.command "clean-users" do |subc|
     subc.action do |global_options,options,args|
-      result = Cloudpatrol::Task::IAM.new($access_key_id, $secret_access_key).clean_users
-      puts "Deleted #{result.count} users"
+      result = Cloudpatrol.perform($aws_credentials, :IAM, :clean_users)
+      puts "Deleted #{result[:task].count} users"
     end
   end
 end
@@ -155,9 +155,10 @@ command "cloudformation" do |c|
 end
 
 pre do |global, command, options, args|
-  $access_key_id = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
-  $secret_access_key = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
-  $region = global[:region] || "us-east-1"
+  $aws_credentials = {}
+  $aws_credentials[:access_key_id] = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
+  $aws_credentials[:secret_access_key] = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
+  $aws_credentials[:region] = global[:region] || "us-east-1"
   true
 end
 

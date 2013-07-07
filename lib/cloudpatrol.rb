@@ -3,7 +3,7 @@ require 'cloudpatrol/version.rb'
 require 'core_ext/integer.rb'
 
 module Cloudpatrol
-  def self.perform aws_credentials = {}, klass, method, *args
+  def self.perform aws_credentials, klass, method, *args
     Task.config aws_credentials
 
     response = {}
