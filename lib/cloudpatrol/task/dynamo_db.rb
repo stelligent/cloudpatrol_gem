@@ -1,8 +1,9 @@
 module Cloudpatrol::Task
   class DynamoDB
 
+    # Just a stub.
     def log action, response
-      true
+      false
     end
 
   end

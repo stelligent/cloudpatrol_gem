@@ -1,9 +1,13 @@
 module Cloudpatrol::Task
   class CloudFormation
+    def initialize cred
+      @gate = ::AWS::CloudFormation.new(cred)
+    end
+
     def clean_stacks allowed_age
       deleted = []
-      stacks.each do |stack|
-        if (Time.now - stack.creation_time).to_i > allowed_age * 24 * 60 * 60
+      @gate.stacks.each do |stack|
+        if (Time.now - stack.creation_time).to_i > allowed_age.days
           deleted << stack
           stack.delete
         end
