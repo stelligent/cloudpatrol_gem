@@ -10,6 +10,7 @@ spec = Gem::Specification.new do |s|
   s.files = %w(
 bin/cloudpatrol
 lib/cloudpatrol/task/cloud_formation.rb
+lib/cloudpatrol/task/dynamo_db.rb
 lib/cloudpatrol/task/ec2.rb
 lib/cloudpatrol/task/iam.rb
 lib/cloudpatrol/task/ops_works.rb

@@ -1,5 +1,5 @@
 require 'aws'
-require 'task/*.rb'
+require 'cloudpatrol/task/*.rb'
 
 module Cloudpatrol
   module Task
