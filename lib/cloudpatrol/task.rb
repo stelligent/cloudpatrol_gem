@@ -1,4 +1,3 @@
-require 'aws'
 require 'cloudpatrol/task/cloud_formation.rb'
 require 'cloudpatrol/task/dynamo_db.rb'
 require 'cloudpatrol/task/ec2.rb'

@@ -44,7 +44,6 @@ command "ec2" do |c|
   c.flag [ :d, :days ]
 
   # This action needs a feature for constant monitoring of creation time.
-  # Amazon doesn't keep record of creation time for key pairs and instances.
   c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
   c.command "clean-keypairs" do |subc|
     subc.action do |global_options,options,args|
@@ -55,7 +54,8 @@ command "ec2" do |c|
   c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      result = Cloudpatrol.perform($aws_credentials, :EC2, :clean_instances)
+      raise "Specify max age for an instance with -d option" unless options[:days]
+      result = Cloudpatrol.perform($aws_credentials, :EC2, :clean_instances, options[:days].to_i)
       puts "Deleted #{result[:task].count} instances"
     end
   end

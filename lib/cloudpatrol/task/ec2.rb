@@ -1,3 +1,5 @@
+require 'aws'
+
 module Cloudpatrol
   module Task
     class EC2
