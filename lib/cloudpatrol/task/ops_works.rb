@@ -4,7 +4,7 @@ module Cloudpatrol
   module Task
     class OpsWorks
       def initialize cred
-        @gate = ::AWS::OpsWorks.new(cred)
+        @gate = ::AWS::OpsWorks::Client.new(cred)
       end
 
       def clean_apps allowed_age
