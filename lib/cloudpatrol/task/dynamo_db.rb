@@ -8,8 +8,8 @@ module Cloudpatrol
         @gate = ::AWS::DynamoDB.new(cred)
       end
 
-      def log action, response
-        table_name = "cloudpatrol-log"
+      def log table_name, action, response
+        return false unless table_name
         t = @gate.tables[table_name]
         unless t.exists?
           t = @gate.tables.create(table_name, 1, 1)
