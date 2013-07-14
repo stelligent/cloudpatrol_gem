@@ -44,19 +44,23 @@ command "ec2" do |c|
   c.flag [ :d, :days ]
 
   # This action needs a feature for constant monitoring of creation time.
-  c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
-  c.command "clean-keypairs" do |subc|
-    subc.action do |global_options,options,args|
-      puts "doesn't work"
-    end
-  end
+  # c.desc "Deletes AWS EC2 key pairs that have existed for configurable number of days"
+  # c.command "clean-keypairs" do |subc|
+  #   subc.action do |global_options,options,args|
+  #     puts "doesn't work"
+  #   end
+  # end
 
   c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
       raise "Specify max age for an instance with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, options[:days].to_i)
-      puts "Deleted #{result[:task].count} instances"
+      if result[:task]
+        puts "Deleted #{result[:task].count} instances"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -64,7 +68,11 @@ command "ec2" do |c|
   c.command "clean-security-groups" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_security_groups)
-      puts "Deleted #{result[:task].count} security groups"
+      if result[:task]
+        puts "Deleted #{result[:task].count} security groups"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -72,7 +80,11 @@ command "ec2" do |c|
   c.command "start-instances" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :start_instances)
-      puts "Started #{result[:task].count} instances"
+      if result[:task]
+        puts "Started #{result[:task].count} instances"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -80,7 +92,11 @@ command "ec2" do |c|
   c.command "stop-instances" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :stop_instances)
-      puts "Stopped #{result[:task].count} instances"
+      if result[:task]
+        puts "Stopped #{result[:task].count} instances"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -88,7 +104,11 @@ command "ec2" do |c|
   c.command "release-elastic-ip" do |subc|
     subc.action do |global_options, options, args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :release_elastic_ip)
-      puts "Released Elastic IP #{result[:task].ip_address}"
+      if result[:task]
+        puts "Released Elastic IP #{result[:task].ip_address}"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 end
@@ -105,7 +125,11 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for an app with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_apps, options[:days].to_i)
-      puts "Deleted #{result[:task].count} OpsWorks apps"
+      if result[:task]
+        puts "Deleted #{result[:task].count} OpsWorks apps"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -114,7 +138,11 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for an instance with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_instances, options[:days].to_i)
-      puts "Deleted #{result[:task].count} OpsWorks instances"
+      if result[:task]
+        puts "Deleted #{result[:task].count} OpsWorks instances"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -123,7 +151,11 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a layer with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_layers, options[:days].to_i)
-      puts "Deleted #{result[:task].count} OpsWorks layers"
+      if result[:task]
+        puts "Deleted #{result[:task].count} OpsWorks layers"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 
@@ -132,7 +164,11 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a stack with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, options[:days].to_i)
-      puts "Deleted #{result[:task].count} OpsWorks stacks"
+      if result[:task]
+        puts "Deleted #{result[:task].count} OpsWorks stacks"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 end
@@ -149,7 +185,11 @@ command "cloudformation" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a stack with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :CloudFormation, :clean_stacks, options[:days].to_i)
-      puts "Deleted #{result[:task].count} CloudFormation stacks"
+      if result[:task]
+        puts "Deleted #{result[:task].count} CloudFormation stacks"
+      else
+        puts "Unsuccessful"
+      end
     end
   end
 end
