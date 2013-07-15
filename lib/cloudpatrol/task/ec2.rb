@@ -47,7 +47,7 @@ module Cloudpatrol
           end
         end
         @gate.security_groups.each do |sg|
-          if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0
+          if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0 and sg.name != "default"
             deleted << sg
             sg.delete
           end
@@ -67,7 +67,6 @@ module Cloudpatrol
       end
 
       # def delete_ports_assigned_to_default
-      #   # pending
       # end
     end
   end
