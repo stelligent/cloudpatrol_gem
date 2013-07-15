@@ -55,8 +55,15 @@ module Cloudpatrol
         deleted
       end
 
-      def release_elastic_ip
-        @gate.elastic_ips.create
+      def clean_elastic_ips
+        deleted = []
+        @gate.elastic_ips.each do |ip|
+          unless ip.instance
+            deleted << ip
+            ip.release
+          end
+        end
+        deleted
       end
 
       # def delete_ports_assigned_to_default

@@ -100,12 +100,12 @@ command "ec2" do |c|
     end
   end
 
-  c.desc "Release EC2 Elastic IP not associated with an instance"
-  c.command "release-elastic-ip" do |subc|
+  c.desc "Releases EC2 Elastic IPs not associated with any instance"
+  c.command "clean-elastic-ips" do |subc|
     subc.action do |global_options, options, args|
-      result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :release_elastic_ip)
+      result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_elastic_ips)
       if result[:task]
-        puts "Released Elastic IP #{result[:task].ip_address}"
+        puts "Deleted #{result[:task].count} Elastic IPs"
       else
         puts "Unsuccessful"
       end
