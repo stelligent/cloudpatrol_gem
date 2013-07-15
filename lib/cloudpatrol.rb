@@ -8,7 +8,7 @@ module Cloudpatrol
     table_name = "cloudpatrol-log" unless table_name
 
     response[:task] = begin
-      Task.const_get(klass).new(aws_credentials).send(method, *args))
+      Task.const_get(klass).new(aws_credentials).send(method, *args)
     rescue AWS::Errors::Base => e
       "AWS error: #{e}"
     else
