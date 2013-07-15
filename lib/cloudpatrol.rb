@@ -7,15 +7,23 @@ module Cloudpatrol
     response = {}
     table_name = "cloudpatrol-log" unless table_name
 
-    response[:task] = begin
-      Task.const_get(klass).new(aws_credentials).send(method, *args)
+    aws_response = begin
+      response[:task] = Task.const_get(klass).new(aws_credentials).send(method, *args)
     rescue AWS::Errors::Base => e
+      response[:task] = false
       "AWS error: #{e}"
-    else
+    rescue
+      response[:task] = false
       "Unknown error"
     end
 
-    (response[:log] = Task::DynamoDB.new(aws_credentials).log(table_name, { class: klass, method: method, args: args }, response[:task])) rescue false
+    response[:log] = begin
+      Task::DynamoDB.new(aws_credentials).log(table_name, { class: klass, method: method, args: args }, aws_response)
+    rescue
+      puts "Failed to write log to DynamoDB"
+      false
+    end
+
     response
   end
 end

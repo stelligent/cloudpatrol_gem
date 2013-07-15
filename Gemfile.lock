@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloudpatrol (0.0.2)
+    cloudpatrol (0.1.0)
       aws-sdk (= 1.11.0)
       gli (= 2.6.0)
 
