@@ -10,7 +10,9 @@ module Cloudpatrol
     response[:task] = begin
       Task.const_get(klass).new(aws_credentials).send(method, *args))
     rescue AWS::Errors::Base => e
-      "Error: #{e}"
+      "AWS error: #{e}"
+    else
+      "Unknown error"
     end
 
     (response[:log] = Task::DynamoDB.new(aws_credentials).log(table_name, { class: klass, method: method, args: args }, response[:task])) rescue false
