@@ -1,4 +1,0 @@
-= cloudpatrol
-
-Generate this with
-    cloudpatrol rdoc
