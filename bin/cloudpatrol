@@ -76,6 +76,18 @@ command "ec2" do |c|
     end
   end
 
+  c.desc "Deletes ports assigned to default security group"
+  c.command "clean-ports-in-default" do |subc|
+    subc.action do |global_options,options,args|
+      result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_ports_in_default)
+      if result[:task]
+        puts "Deleted #{result[:task].count} rules"
+      else
+        puts "Unsuccessful"
+      end
+    end
+  end
+
   c.desc "Starts AWS EC2 Instances"
   c.command "start-instances" do |subc|
     subc.action do |global_options,options,args|
