@@ -38,7 +38,9 @@ Now that you've intalled Ruby and other packages, you will install CloudPatrol g
 
 ## Example CLI Snippets
 
-Now that you've intalled the CloudPatrol CLI, here are some snippets you can use:
+Now that you've intalled the CloudPatrol CLI, here are some snippets you can use.
+
+To get a listing of the methods you can use for a service, enter help next to the service name. For example:
 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudformation clean-stacks --days=2```
