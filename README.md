@@ -41,4 +41,4 @@ Now that you've intalled Ruby and other packages, you will install CloudPatrol g
 
 Now that you've intalled the CloudPatrol CLI, here are some snippets you can use:
 
-1. ```bundle exec bin/cloudpatrol --aws_access_key_id=MY_KEY --aws_secret_access_key=MY_KEY ec2 clean-security-groups```
+1. ```bundle exec bin/cloudpatrol --aws_access_key_id=KEY --aws_secret_access_key=KEY ec2 clean-security-groups```
