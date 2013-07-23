@@ -9,7 +9,7 @@ Ruby Gem for CloudPatrol
 
 This gem lets you establish and automatically enforce team policies for your Amazon Web Services account through a Command Line Interface (CLI).
 
-While Ruby can be installed on many operating systems, we've include detailed instructions for installing on Ubuntu 12.04 LTS.
+While Ruby can be installed on many operating systems, we've included detailed instructions for installing on Ubuntu 12.04 LTS.
 
 ## Configuration of Linux Instance
 
