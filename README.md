@@ -42,11 +42,11 @@ Now that you've intalled the CloudPatrol CLI, you can begin using it through the
 
 Currently, there are four services that CloudPatrol can manage. They are cloudformation, ec2, iam and opsworks. To get a listing of all the services and options that CloudPatrol provides, type:
 
-1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudpatrol```
+```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudpatrol```
 
 To get a listing of the methods you can use for a service, enter help next to the service name. For example:
 
-1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
+```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
  
 Here are some code snippets to use the CloudPatrol CLI 
 
