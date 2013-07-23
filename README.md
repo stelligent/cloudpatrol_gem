@@ -41,6 +41,7 @@ Now that you've intalled Ruby and other packages, you will install CloudPatrol g
 Now that you've intalled the CloudPatrol CLI, you can begin using it through the command line. There's also a Rails web app that you can download and use [here](https://github.com/stelligent/cloudpatrol)
 
 Currently, there are four services that CloudPatrol can manage. They are cloudformation, ec2, iam and opsworks. To get a listing of all the services and options that CloudPatrol provides, type:
+
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudpatrol```
 
 To get a listing of the methods you can use for a service, enter help next to the service name. For example:
