@@ -40,6 +40,9 @@ Now that you've intalled Ruby and other packages, you will install CloudPatrol g
 
 Now that you've intalled the CloudPatrol CLI, here are some snippets you can use.
 
+Currently, there are four services that CloudPatrol can manage. They are cloudformation, ec2, iam and opsworks. To get a listing of all the services that CloudPatrol can manage, type:
+1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudpatrol```
+
 To get a listing of the methods you can use for a service, enter help next to the service name. For example:
 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
