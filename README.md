@@ -7,7 +7,7 @@ Ruby Gem for CloudPatrol
 
 ## Description
 
-This gem lets you establish and automatically enforce team policies for your Amazon Web Services account through a Command Line Interface (CLI).
+CloudPatrol lets you establish and automatically enforce team policies for your Amazon Web Services account through a Command Line Interface (CLI).
 
 While Ruby can be installed on many operating systems, we've included detailed instructions for installing on Ubuntu 12.04 LTS. With minor alterations, you can run these instructions for other operating systems.
 ## Configuration of Linux Instance
@@ -38,14 +38,17 @@ Now that you've intalled Ruby and other packages, you will install CloudPatrol g
 
 ## Example CLI Snippets
 
-Now that you've intalled the CloudPatrol CLI, here are some snippets you can use.
+Now that you've intalled the CloudPatrol CLI, you can begin using it through the command line. There's also a Rails web app that you can download and use [here](https://github.com/stelligent/cloudpatrol)
 
-Currently, there are four services that CloudPatrol can manage. They are cloudformation, ec2, iam and opsworks. To get a listing of all the services that CloudPatrol can manage, type:
+Currently, there are four services that CloudPatrol can manage. They are cloudformation, ec2, iam and opsworks. To get a listing of all the services and options that CloudPatrol provides, type:
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudpatrol```
 
 To get a listing of the methods you can use for a service, enter help next to the service name. For example:
 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
+ 
+Here are some code snippets to use the CloudPatrol CLI:
+
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudformation clean-stacks --days=2```
 1. ```bundle exec bin/cloudpatrol --region=us-east-1 --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 clean-instances --days=1``` 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 clean-security-groups```
