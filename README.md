@@ -9,6 +9,8 @@ Ruby Gem for CloudPatrol
 
 CloudPatrol lets you establish and automatically enforce team policies for your Amazon Web Services account through a Command Line Interface (CLI).
 
+There's also a corresponding [Rails web app](https://github.com/stelligent/cloudpatrol) that you can download and use [here](https://github.com/stelligent/cloudpatrol)
+
 While Ruby can be installed on many operating systems, we've included detailed instructions for installing on Ubuntu 12.04 LTS. With minor alterations, you can run these instructions for other operating systems.
 ## Configuration of Linux Instance
 
