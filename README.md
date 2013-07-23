@@ -1,4 +1,4 @@
-cloudpatrol_gem
+CloudPatrol Ruby Gem
 ===============
 
 Ruby Gem for CloudPatrol
