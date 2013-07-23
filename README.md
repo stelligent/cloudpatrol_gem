@@ -47,7 +47,7 @@ To get a listing of the methods you can use for a service, enter help next to th
 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 help```
  
-Here are some code snippets to use the CloudPatrol CLI:
+Here are some code snippets to use the CloudPatrol CLI 
 
 1. ```bundle exec bin/cloudpatrol --aws_access_key_id=ID --aws_secret_access_key=KEY cloudformation clean-stacks --days=2```
 1. ```bundle exec bin/cloudpatrol --region=us-east-1 --aws_access_key_id=ID --aws_secret_access_key=KEY ec2 clean-instances --days=1``` 
