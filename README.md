@@ -12,14 +12,14 @@ CloudPatrol lets you establish and automatically enforce team policies for your 
 There's also a corresponding [Rails web app](https://github.com/stelligent/cloudpatrol) that you can download and use [here](https://github.com/stelligent/cloudpatrol)
 
 While Ruby can be installed on many operating systems, we've included detailed instructions for installing on Ubuntu 12.04 LTS. With minor alterations, you can run these instructions for other operating systems.
-## Configuration of Linux Instance
 
-You'll need to first download and install Ubuntu 12.04 LTS. To do this, go to [Ubuntu](http://releases.ubuntu.com/precise/).
+## Configuration of Ubuntu 12.04 LTS Instance
 
+Since you will be using [AWS EC2](https://console.aws.amazon.com/ec2/) to install Ubuntu, choose the Ubuntu 12.04 LTS 64-bit option when launching your EC2 instance.
 
 ## Installing Rails on Ubuntu 12.04 LTS
 
-After you've installed Ubunu, follow the instructions below (which were adpated from [digitalocean](https://www.digitalocean.com/community/articles/how-to-install-ruby-on-rails-on-ubuntu-12-04-lts-precise-pangolin-with-rvm))
+After you've installed Ubunu, follow the instructions below.
 
 1. ```sudo apt-get update```
 1. ```sudo apt-get install curl nodejs git```
