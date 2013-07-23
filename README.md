@@ -15,7 +15,7 @@ While Ruby can be installed on many operating systems, we've included detailed i
 You'll need to first download and install Ubuntu 12.04 LTS. To do this, go to [Ubuntu](http://releases.ubuntu.com/precise/).
 
 
-## Installation of Rails on Ubuntu 12.04 LTS
+## Installing Rails on Ubuntu 12.04 LTS
 
 After you've installed Ubunu, follow the instructions below (which were adpated from [digitalocean](https://www.digitalocean.com/community/articles/how-to-install-ruby-on-rails-on-ubuntu-12-04-lts-precise-pangolin-with-rvm))
 
@@ -28,7 +28,7 @@ After you've installed Ubunu, follow the instructions below (which were adpated 
 1. ```rvm use 2.0.0 --default```
 1. ```rvm rubygems current```
 
-## Installation of CloudPatrol Gem
+## Installing CloudPatrol Gem
 
 Now that you've intalled Ruby and other packages, you will install CloudPatrol gem on this instance.
 
