@@ -35,8 +35,8 @@ After you've installed Ubunu, follow the instructions below.
 Now that you've intalled Ruby and other packages, you will install CloudPatrol gem on this instance.
 
 1. ```git clone https://github.com/stelligent/cloudpatrol_gem.git```
-1. ```bundle install```
 1. ```cd ~/cloudpatrol_gem```
+1. ```bundle install```
 
 ## Example CLI Snippets
 
