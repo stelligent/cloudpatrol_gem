@@ -7,18 +7,18 @@ module Cloudpatrol
     response = {}
     table_name ||= "cloudpatrol-log"
 
-    aws_response = begin
-      response[:task] = Task.const_get(klass).new(aws_credentials).send(method, *args)
+    response[:task] = begin
+      response[:formatted] = Task.const_get(klass).new(aws_credentials).send(method, *args)
     rescue AWS::Errors::Base => e
-      response[:task] = false
-      "AWS error: #{e}"
+      response[:formatted] = "AWS error: #{e}"
+      false
     rescue
-      response[:task] = false
-      "Unknown error"
+      response[:formatted] = "Unknown error"
+      false
     end
 
     response[:log] = begin
-      Task::DynamoDB.new(aws_credentials, table_name).log({ class: klass, method: method, args: args }, aws_response)
+      Task::DynamoDB.new(aws_credentials, table_name).log({ class: klass, method: method, args: args }, response[:formatted])
     rescue
       puts "Failed to write log to DynamoDB"
       false
@@ -29,25 +29,39 @@ module Cloudpatrol
 
   def self.get_log aws_credentials, table_name = "cloudpatrol-log"
     gate = ::AWS::DynamoDB.new(aws_credentials)
-    response = []
+    response = {}
     table = gate.tables[table_name]
     if table.exists?
+      response[:log] = []
       table.items.each do |item|
-        response << item.attributes.to_hash
+        response[:log] << item.attributes.to_hash
       end
-      response.map! do |item|
+      response[:log].map! do |item|
         {
           time: Time.parse(item["time"]),
           action: item["action"],
           response: item["response"]
         }
       end
-      response.sort!{ |x,y| y[:time] <=> x[:time] }
+      response[:log].sort!{ |x,y| y[:time] <=> x[:time] }
     else
-      response = "Table doesn't exist"
+      response[:success] = false
+      response[:error] = "Table doesn't exist"
     end
-    response
+  rescue AWS::Errors::Base => e
+    response[:success] = false
+    response[:error] = "AWS error: #{e}"
   rescue
-    "Unknown error"
+    response[:success] = false
+    response[:error] = "Unknown error"
+  else
+    response[:success] = if response[:log].empty?
+      response[:error] = "Log is empty"
+      false
+    else
+      true
+    end
+  ensure
+    return response
   end
 end
