@@ -206,6 +206,29 @@ command "cloudformation" do |c|
   end
 end
 
+desc 'CloudPatrol log'
+command "log" do |c|
+  c.desc "overrides default table name"
+  c.default_value "cloudpatrol-log"
+  c.arg_name ""
+  c.flag [ :t, :table ]
+
+  c.action do |global_options,options,args|
+    table_name = options[:table] || "cloudpatrol-log"
+    result = Cloudpatrol::Task::DynamoDB.new($aws_credentials, table_name).get_log
+    case result.class
+    when Array
+      if result.any?
+        puts result
+      else
+        puts "Log is empty"
+      end
+    when String
+      puts result
+    end
+  end
+end
+
 pre do |global, command, options, args|
   $aws_credentials = {}
   $aws_credentials[:access_key_id] = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
