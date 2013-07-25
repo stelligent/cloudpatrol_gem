@@ -31,7 +31,8 @@ module Cloudpatrol
     gate = ::AWS::DynamoDB.new(aws_credentials)
     response = {}
     table = gate.tables[table_name]
-    if table.exists?
+    if table.exists? and table.status == :active
+      table.load_schema
       response[:log] = []
       table.items.each do |item|
         response[:log] << item.attributes.to_hash
@@ -43,7 +44,7 @@ module Cloudpatrol
           response: item["response"]
         }
       end
-      response[:log].sort!{ |x,y| y[:time] <=> x[:time] }
+      response[:log].sort!{ |x,y| x[:time] <=> y[:time] }
     else
       response[:success] = false
       response[:error] = "Table doesn't exist"
