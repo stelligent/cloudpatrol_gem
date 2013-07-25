@@ -102,7 +102,7 @@
       "DependsOn" : "Ec2Instance",
       "Properties" : {
         "Handle" : { "Ref" : "WaitHandle" },
-        "Timeout" : "1200"
+        "Timeout" : "1500"
       }
     }
   },
