@@ -13,6 +13,8 @@ Product Roadmap for the CloudPatrol Ruby Gem
 1. Send an SNS when an SSH key has been in use more than a configurable number of days
 1. Send an SNS when there are no regular (configurable?) EBS snapshots being performed
 1. Terminate unused EBS volumes
+1. Conflicting VPC IP Address ranges
+
 
 
 
