@@ -1,7 +1,7 @@
 CloudPatrol Ruby Gem
 ===============
 
-Ruby Gem for CloudPatrol
+Ruby Gem for CloudPatrol. For information on our feature roadmap, go to the [Roadmap](https://github.com/stelligent/cloudpatrol_gem/blob/master/ROADMAP.md)
 
 ==============
 
