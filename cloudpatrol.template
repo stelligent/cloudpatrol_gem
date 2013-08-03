@@ -10,7 +10,7 @@
     },
     "GithubUsername" : {
       "Type" : "String",
-      "Default" : "student29"
+      "Default" : "GithubUsername"
     },
 
     "GithubPassword" : {
@@ -140,7 +140,7 @@
       "DependsOn" : "Ec2Instance",
       "Properties" : {
         "Handle" : { "Ref" : "WaitHandle" },
-        "Timeout" : "990"
+        "Timeout" : "1500"
       }
     }
   },

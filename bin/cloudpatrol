@@ -13,6 +13,8 @@ program_desc "Helps you keep Amazon cloud clean"
 
 version Cloudpatrol::VERSION
 
+result = []
+
 desc 'Specify AWS Access Key ID'
 arg_name 'string'
 flag :aws_access_key_id
@@ -25,13 +27,17 @@ desc 'Specify region'
 arg_name 'string'
 flag :region
 
+desc 'Display performance log of the task'
+default_value false
+switch [ :log ]
+
 desc 'AWS Identity and Access Management'
 command "iam" do |c|
   c.desc "Deletes all IAM users that do not have MFA enabled. Usernames that begin with underscore (_) are kept."
   c.command "clean-users" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :IAM, :clean_users)
-      puts "Deleted #{result[:task].count} users"
+      puts "Deleted #{result[:task].count} users" if result[:task]
     end
   end
 end
@@ -56,11 +62,7 @@ command "ec2" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for an instance with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} instances"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} instances" if result[:task]
     end
   end
 
@@ -68,11 +70,7 @@ command "ec2" do |c|
   c.command "clean-security-groups" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_security_groups)
-      if result[:task]
-        puts "Deleted #{result[:task].count} security groups"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} security groups" if result[:task]
     end
   end
 
@@ -80,11 +78,7 @@ command "ec2" do |c|
   c.command "clean-ports-in-default" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_ports_in_default)
-      if result[:task]
-        puts "Deleted #{result[:task].count} rules"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} rules" if result[:task]
     end
   end
 
@@ -92,11 +86,7 @@ command "ec2" do |c|
   c.command "start-instances" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :start_instances)
-      if result[:task]
-        puts "Started #{result[:task].count} instances"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Started #{result[:task].count} instances" if result[:task]
     end
   end
 
@@ -104,11 +94,7 @@ command "ec2" do |c|
   c.command "stop-instances" do |subc|
     subc.action do |global_options,options,args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :stop_instances)
-      if result[:task]
-        puts "Stopped #{result[:task].count} instances"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Stopped #{result[:task].count} instances" if result[:task]
     end
   end
 
@@ -116,11 +102,7 @@ command "ec2" do |c|
   c.command "clean-elastic-ips" do |subc|
     subc.action do |global_options, options, args|
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_elastic_ips)
-      if result[:task]
-        puts "Deleted #{result[:task].count} Elastic IPs"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} Elastic IPs" if result[:task]
     end
   end
 end
@@ -137,11 +119,7 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for an app with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_apps, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} OpsWorks apps"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} OpsWorks apps" if result[:task]
     end
   end
 
@@ -150,11 +128,7 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for an instance with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_instances, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} OpsWorks instances"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} OpsWorks instances" if result[:task]
     end
   end
 
@@ -163,11 +137,7 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a layer with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_layers, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} OpsWorks layers"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} OpsWorks layers" if result[:task]
     end
   end
 
@@ -176,11 +146,7 @@ command "opsworks" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a stack with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} OpsWorks stacks"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} OpsWorks stacks" if result[:task]
     end
   end
 end
@@ -197,11 +163,24 @@ command "cloudformation" do |c|
     subc.action do |global_options,options,args|
       raise "Specify max age for a stack with -d option" unless options[:days]
       result = Cloudpatrol.perform($aws_credentials, nil, :CloudFormation, :clean_stacks, options[:days].to_i)
-      if result[:task]
-        puts "Deleted #{result[:task].count} CloudFormation stacks"
-      else
-        puts "Unsuccessful"
-      end
+      puts "Deleted #{result[:task].count} CloudFormation stacks" if result[:task]
+    end
+  end
+end
+
+desc 'CloudPatrol log'
+command "log" do |c|
+  c.desc "overrides default table name"
+  c.default_value "cloudpatrol-log"
+  c.flag [ :t, :table ]
+
+  c.action do |global_options,options,args|
+    table_name = options[:table] || "cloudpatrol-log"
+    result = Cloudpatrol.get_log($aws_credentials, table_name)
+    if result[:success]
+      puts result[:log]
+    else
+      puts result[:error]
     end
   end
 end
@@ -215,6 +194,7 @@ pre do |global, command, options, args|
 end
 
 post do |global, command, options, args|
+  puts result[:formatted] if global[:log] and command.name != "log"
 end
 
 on_error do |exception|
