@@ -39,6 +39,28 @@
   },
 
   "Resources" : {
+    "User" : {
+      "Type" : "AWS::IAM::User",
+      "Properties" : {
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": { "Statement":[{
+            "Effect":"Allow",
+            "Action":"*",
+            "Resource":"*"
+          }
+                                          ]}
+        }]
+      }
+    },
+
+    "HostKeys" : {
+      "Type" : "AWS::IAM::AccessKey",
+      "Properties" : {
+        "UserName" : { "Ref": "User" }
+      }
+    },
 
     "Ec2Instance" : {
       "Type" : "AWS::EC2::Instance",
@@ -47,9 +69,17 @@
           "config" : {
             "packages" : {
               "yum" : {
-                "curl"          : [],
-                "nodejs"        : [],
-                "git"           : []
+                "libcurl-devel"   : [],
+                "nodejs"          : [],
+                "git"             : [],
+                "libffi-devel"    : [],
+                "libyaml-devel"   : [],
+                "readline-devel"  : [],
+                "libxml2-devel"   : [],
+                "openssl-devel"   : [],
+                "libxslt-devel"   : [],
+                "mod_ssl"         : [],
+                "gcc"             : []
               }
             }
           }
@@ -67,14 +97,22 @@
           "yum update -y aws-cfn-bootstrap\n",
 
           "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r Ec2Instance ",
-          "         --region ", { "Ref" : "AWS::Region" }, "\n",
+          "    --access-key ", { "Ref" : "HostKeys" },
+          "    --secret-key ", { "Fn::GetAtt" : [ "HostKeys", "SecretAccessKey" ]},
+          "    --region ", { "Ref" : "AWS::Region" }, "\n",
 
-          "\\curl -L https://get.rvm.io | bash -s stable\n",
-          "source ~/.rvm/scripts/rvm\n",
-          "rvm requirements\n",
-          "rvm install 2.0.0\n",
-          "rvm use 2.0.0 --default",
-          "rvm rubygems current\n",
+          "git clone git://github.com/sstephenson/rbenv.git ~/.rbenv\n",
+          "git clone git://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build\n",
+          "echo 'export RUBY_CFLAGS=\"-march=native -O3\"' >> ~/.bash_profile\n",
+          "echo 'export PATH=\"$HOME/.rbenv/bin:$PATH\"' >> ~/.bash_profile\n",
+          "echo 'eval \"$(rbenv init -)\"' >> ~/.bash_profile\n",
+          "exec $SHELL -l\n",
+          "rbenv install 2.0.0-p0\n",
+          "rbenv rehash\n",
+          "rbenv global 2.0.0-p0\n",
+          "gem install bundler\n",
+          "rbenv rehash\n",
+
           "git clone https://", { "Ref" : "GithubUsername" },":", { "Ref" : "GithubPassword" }, "@github.com/cloudpatrol_gem.git\n",
           "cd ~/cloudpatrol_gem\n",
           "bundle install",
