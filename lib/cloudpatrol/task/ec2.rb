@@ -48,7 +48,7 @@ module Cloudpatrol
         end
         @gate.security_groups.each do |sg|
           if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0 and sg.name != "default"
-            deleted << sg
+            deleted << "#{sg} #{sg.name} #{sg.description}"
             sg.delete
           end
         end
