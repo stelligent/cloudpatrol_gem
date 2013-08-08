@@ -11,7 +11,7 @@ module Cloudpatrol
         deleted = []
         @gate.stacks.each do |stack|
           if (Time.now - stack.creation_time).to_i > allowed_age.days
-            deleted << stack
+            deleted << stack.inspect
             stack.delete
           end
         end

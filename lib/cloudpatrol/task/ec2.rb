@@ -10,7 +10,7 @@ module Cloudpatrol
       def start_instances
         result = []
         @gate.instances.each do |instance|
-          result << instance
+          result << instance.inspect
           instance.start
         end
         result
@@ -19,7 +19,7 @@ module Cloudpatrol
       def stop_instances
         result = []
         @gate.instances.each do |instance|
-          result << instance
+          result << instance.inspect
           instance.stop
         end
         result
@@ -29,7 +29,7 @@ module Cloudpatrol
         deleted = []
         @gate.instances.each do |instance|
           if (Time.now - instance.launch_time).to_i > allowed_age.days and instance.status != :terminated
-            deleted << instance
+            deleted << instance.inspect
             instance.delete
           end
         end
@@ -48,7 +48,7 @@ module Cloudpatrol
         end
         @gate.security_groups.each do |sg|
           if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0 and sg.name != "default"
-            deleted << "#{sg} #{sg.name} #{sg.description}"
+            deleted << sg.inspect
             sg.delete
           end
         end
@@ -59,7 +59,7 @@ module Cloudpatrol
         deleted = []
         @gate.security_groups.filter("group-name", "default").each do |sg|
           sg.ingress_ip_permissions do |perm|
-            deleted << perm
+            deleted << perm.instance_values
             perm.revoke
           end
         end
@@ -70,7 +70,7 @@ module Cloudpatrol
         deleted = []
         @gate.elastic_ips.each do |ip|
           unless ip.instance
-            deleted << ip
+            deleted << ip.instance_values
             ip.release
           end
         end

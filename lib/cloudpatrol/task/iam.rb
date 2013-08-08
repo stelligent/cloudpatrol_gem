@@ -11,7 +11,7 @@ module Cloudpatrol
         deleted = []
         @gate.users.each do |user|
           unless user.name =~ /^_/ or user.mfa_devices.count > 0
-            deleted << user
+            deleted << user.inspect
             user.delete!
           end
         end
