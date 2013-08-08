@@ -32,4 +32,5 @@ lib/cloudpatrol.rb
   s.add_development_dependency('aws-sdk', '1.11.0')
   s.add_runtime_dependency('gli', '2.6.0')
   s.add_runtime_dependency('aws-sdk', '1.11.0')
+  s.add_dependency('json')
 end

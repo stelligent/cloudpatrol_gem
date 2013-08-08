@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'gli'
+require 'json'
 
 begin # Remove this begin/rescue before distributing the app
   require 'cloudpatrol'
@@ -26,6 +27,9 @@ flag :aws_secret_access_key
 desc 'Specify region'
 arg_name 'string'
 flag :region
+
+desc 'Specify config file'
+flag :config_file
 
 desc 'Display performance log of the task'
 default_value false
@@ -60,8 +64,8 @@ command "ec2" do |c|
   c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for an instance with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, options[:days].to_i)
+      days = options[:days] or $config["ec2_instance_age"] or raise "Specify max age for an instance with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, days.to_i)
       puts "Deleted #{result[:task].count} instances" if result[:task]
     end
   end
@@ -117,8 +121,8 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks apps that have existed for configurable number of days"
   c.command "clean-apps" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for an app with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_apps, options[:days].to_i)
+      days = options[:days] or $config["opsworks_app_age"] or raise "Specify max age for an app with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_apps, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks apps" if result[:task]
     end
   end
@@ -126,8 +130,8 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for an instance with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_instances, options[:days].to_i)
+      days = options[:days] or $config["opsworks_instance_age"] or raise "Specify max age for an instance with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_instances, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks instances" if result[:task]
     end
   end
@@ -135,8 +139,8 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks layers that have existed for configurable number of days"
   c.command "clean-layers" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for a layer with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_layers, options[:days].to_i)
+      days = options[:days] or $config["opsworks_layer_age"] or raise "Specify max age for a layer with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_layers, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks layers" if result[:task]
     end
   end
@@ -144,8 +148,8 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for a stack with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, options[:days].to_i)
+      days = options[:days] or $config["opsworks_stack_age"] or raise "Specify max age for a stack with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks stacks" if result[:task]
     end
   end
@@ -161,8 +165,8 @@ command "cloudformation" do |c|
   c.desc "Deletes AWS CloudFormation stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
     subc.action do |global_options,options,args|
-      raise "Specify max age for a stack with -d option" unless options[:days]
-      result = Cloudpatrol.perform($aws_credentials, nil, :CloudFormation, :clean_stacks, options[:days].to_i)
+      days = options[:days] or $config["cloudformation_stack_age"] or raise "Specify max age for a stack with -d option or --config_file"
+      result = Cloudpatrol.perform($aws_credentials, nil, :CloudFormation, :clean_stacks, days.to_i)
       puts "Deleted #{result[:task].count} CloudFormation stacks" if result[:task]
     end
   end
@@ -187,9 +191,19 @@ end
 
 pre do |global, command, options, args|
   $aws_credentials = {}
-  $aws_credentials[:access_key_id] = global[:aws_access_key_id] or raise ArgumentError, "--aws_access_key_id is required"
-  $aws_credentials[:secret_access_key] = global[:aws_secret_access_key] or raise ArgumentError, "--aws_secret_access_key is required"
-  $aws_credentials[:region] = global[:region] || "us-east-1"
+  $config = {}
+
+  if global[:config_file]
+    if File.readable?(global[:config_file])
+      $config = JSON.parse(File.read(global[:config_file]))
+    else
+      raise ArgumentError, "--config_file: no such file"
+    end
+  end
+
+  $aws_credentials[:access_key_id] = global[:aws_access_key_id] or $config["aws_access_key_id"] or raise ArgumentError, "--aws_access_key_id or --config_file is required"
+  $aws_credentials[:secret_access_key] = global[:aws_secret_access_key] or $config["aws_secret_access_key"] or raise ArgumentError, "--aws_secret_access_key or --config_file is required"
+  $aws_credentials[:region] = global[:region] or "us-east-1"
   true
 end
 
