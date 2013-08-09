@@ -195,7 +195,7 @@ pre do |global, command, options, args|
 
   if global[:config_file]
     if File.readable?(global[:config_file])
-      $config = JSON.parse(File.read(global[:config_file]))
+      $config = JSON.parse(File.read(global[:config_file])) rescue raise(ArgumentError, "invalid config file")
     else
       raise ArgumentError, "--config_file: no such file"
     end
