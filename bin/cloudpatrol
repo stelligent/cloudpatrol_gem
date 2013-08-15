@@ -201,8 +201,8 @@ pre do |global, command, options, args|
     end
   end
 
-  $aws_credentials[:access_key_id] = global[:aws_access_key_id] or $config["aws_access_key_id"] or raise ArgumentError, "--aws_access_key_id or --config_file is required"
-  $aws_credentials[:secret_access_key] = global[:aws_secret_access_key] or $config["aws_secret_access_key"] or raise ArgumentError, "--aws_secret_access_key or --config_file is required"
+  $aws_credentials[:access_key_id] = global[:aws_access_key_id] || $config["aws_access_key_id"] || raise(ArgumentError, "--aws_access_key_id or --config_file is required")
+  $aws_credentials[:secret_access_key] = global[:aws_secret_access_key] || $config["aws_secret_access_key"] || raise(ArgumentError, "--aws_secret_access_key or --config_file is required")
   $aws_credentials[:region] = global[:region] or "us-east-1"
   true
 end
