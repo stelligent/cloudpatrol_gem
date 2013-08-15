@@ -58,8 +58,8 @@ module Cloudpatrol
       def clean_ports_in_default
         deleted = []
         @gate.security_groups.filter("group-name", "default").each do |sg|
-          sg.ingress_ip_permissions do |perm|
-            deleted << perm.instance_values
+          sg.ingress_ip_permissions.each do |perm|
+            deleted << { port_range: perm.port_range }
             perm.revoke
           end
         end
@@ -70,7 +70,7 @@ module Cloudpatrol
         deleted = []
         @gate.elastic_ips.each do |ip|
           unless ip.instance
-            deleted << ip.instance_values
+            deleted << ip.inspect
             ip.release
           end
         end
