@@ -1,6 +1,10 @@
 require 'securerandom'
 require 'aws'
 
+# this is going to need another table
+# and the log is going to have to have a specific table
+# should whitelists be by resource id? 
+
 module Cloudpatrol
   module Task
     class DynamoDB
