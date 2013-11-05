@@ -71,6 +71,22 @@ module Cloudpatrol
         return result
       end
 
+      def stop_all_instances_for_layer layer_id
+        result = []
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+              if (instance[:status] == "running")
+                @gate.stop_instance instance_id: instance[:instance_id]
+                result << instance
+              end
+            end
+          end
+        end
+        return result
+      end
+
+
       # stop all instances for layer
       # are all instances stopped for layer
       # delete all instances for layer
