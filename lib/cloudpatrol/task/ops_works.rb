@@ -62,7 +62,7 @@ module Cloudpatrol
         result = false
         @gate.describe_stacks[:stacks].each do |stack|
           @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+            @gate.describe_instances(layer_id: layer_id)[:instances].each do |instance|
               result = true
               break
             end
@@ -86,13 +86,55 @@ module Cloudpatrol
         return result
       end
 
+      def are_all_instances_stopped_for_layer? layer_id
+        result = true
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+              if (instance[:status] == "running")
+                result = false
+                break
+              end
+            end
+          end
+        end
+        return result
+      end
 
-      # stop all instances for layer
-      # are all instances stopped for layer
-      # delete all instances for layer
-      # delete all layers for stack
-      # does stack have layers?
-      # delete all stacks
+      def delete_all_instances_for_layer layer_id
+        result = []
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+              @gate.delete_instance instance_id: instance[:instance_id]
+              result << instance
+            end
+          end
+        end
+        return result
+      end
+
+      def delete_all_layers_for_stack stack_id
+        result = []
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            @gate.delete_layer layer_id: layer[:layer_id]
+            result << layer
+          end
+        end
+        return result
+      end
+
+      def does_stack_have_layers? stack_id
+        result = false
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            result = true
+            break
+          end
+        end
+        return result        
+      end
 
     end
   end
