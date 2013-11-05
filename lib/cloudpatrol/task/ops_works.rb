@@ -56,6 +56,28 @@ module Cloudpatrol
         end
         deleted
       end
+
+      # does layer have instances?
+      def does_layer_have_instances? layer_id
+        result = false
+        @gate.describe_stacks[:stacks].each do |stack|
+          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
+            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+              result = true
+              break
+            end
+          end
+        end
+        return result
+      end
+
+      # stop all instances for layer
+      # are all instances stopped for layer
+      # delete all instances for layer
+      # delete all layers for stack
+      # does stack have layers?
+      # delete all stacks
+
     end
   end
 end
