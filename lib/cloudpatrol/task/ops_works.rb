@@ -86,29 +86,13 @@ module Cloudpatrol
         puts "delete the stack"
         @gate.delete_stack stack_id: stack_id
       end 
-    
-      # does layer have instances?
-      def does_layer_have_instances? layer_id
-        result = false
-        @gate.describe_stacks[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
-              result = true
-              break
-            end
-          end
-        end
-        return result
-      end
 
       def does_stack_have_instances? stack_id
         result = false
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
-              result = true
-              break
-            end
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
+            result = true
+            break
           end
         end
         return result
@@ -151,29 +135,11 @@ module Cloudpatrol
       def stop_all_instances_for_stack stack_id
         result = []
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
-              puts instance[:hostname]
-              if (instance[:status] != "stopped")
-                @gate.stop_instance instance_id: instance[:instance_id]
-                result << instance
-              end
-            end
-          end
-        end
-        return result
-      end
-
-      def are_all_instances_stopped_for_layer? layer_id
-        result = true
-        @gate.describe_stacks[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
             puts instance[:hostname]
-              if (instance[:status] != "stopped")
-                result = false
-                break
-              end
+            if (instance[:status] != "stopped")
+              @gate.stop_instance instance_id: instance[:instance_id]
+              result << instance
             end
           end
         end
@@ -183,27 +149,11 @@ module Cloudpatrol
       def are_all_instances_stopped_for_stack? stack_id
         result = true
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
             puts instance[:hostname]
-              if (instance[:status] != "stopped")
-                result = false
-                break
-              end
-            end
-          end
-        end
-        return result
-      end
-
-      def delete_all_instances_for_layer layer_id
-        result = []
-        @gate.describe_stacks[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
-              puts instance[:hostname]
-              @gate.delete_instance instance_id: instance[:instance_id]
-              result << instance
+            if (instance[:status] != "stopped")
+              result = false
+              break
             end
           end
         end
@@ -213,12 +163,10 @@ module Cloudpatrol
       def delete_all_instances_for_stack stack_id
         result = []
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
-            @gate.describe_instances(layer_id: layer[:layer_id])[:instances].each do |instance|
-              puts instance[:hostname]
-              @gate.delete_instance instance_id: instance[:instance_id]
-              result << instance
-            end
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
+            puts instance[:hostname]
+            @gate.delete_instance instance_id: instance[:instance_id]
+            result << instance
           end
         end
         return result
@@ -245,17 +193,6 @@ module Cloudpatrol
         end
         return result        
       end    
-
-      # unless stack is empty
-      #   for each layer
-      #     for each instance
-      #       stop instance
-      #       wait for instances to stop
-      #       delete each instances
-      #       wait for instances to delete
-      #     delete layer
-      #     wait for layer to delete
-      # delete stack
 
     end
   end
