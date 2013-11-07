@@ -147,6 +147,7 @@ command "opsworks" do |c|
 
   c.desc "Deletes AWS OpsWorks stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
+    puts "Note: deleting OpsWorks stacks can take a few minutes."
     subc.action do |global_options,options,args|
       days = options[:days] or $config["opsworks_stack_age"] or raise "Specify max age for a stack with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, days.to_i)
