@@ -23,7 +23,7 @@ module Cloudpatrol
             begin
               instance.stop
               result << instance.inspect
-            rescue Exception => e
+            rescue AWS::Errors::Base => e
               # we need a better logging solution that printing to stdout
               puts "Failed to delete #{instance.id} because #{e}"
             end

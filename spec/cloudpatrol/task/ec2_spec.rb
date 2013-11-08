@@ -27,7 +27,7 @@ describe Cloudpatrol::Task::EC2 do
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
     expect(instance).to receive(:status).exactly(2).times.with(no_args()).and_return (:running)
-    expect(instance).to receive(:stop).with(no_args()).and_raise("Failed to delete instance")
+    expect(instance).to receive(:stop).with(no_args()).and_raise(AWS::Errors::Base, "Failed to delete instance")
     expect(instance).to receive(:id).with(no_args()).and_return("i-1234567890")
 
     actual = ec2.stop_instances
