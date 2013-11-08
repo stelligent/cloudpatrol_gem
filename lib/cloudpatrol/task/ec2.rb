@@ -16,11 +16,18 @@ module Cloudpatrol
         result
       end
 
-      def stop_instances
+      def stop_instances allowed_age = 0
         result = []
         @gate.instances.each do |instance|
-          result << instance.inspect
-          instance.stop
+          if instance.status == :pending or instance.status == :running
+            begin
+              instance.stop
+              result << instance.inspect
+            rescue Exception => e
+              # we need a better logging solution that printing to stdout
+              puts "Failed to delete #{instance.id} because #{e}"
+            end
+          end
         end
         result
       end
