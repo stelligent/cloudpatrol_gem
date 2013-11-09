@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'Cloudpatrol'
 
 describe Cloudpatrol::Task::EC2 do
@@ -186,4 +187,7 @@ describe Cloudpatrol::Task::EC2 do
     actual_failures.first.should == {:port_range => 0..65535}
    end
 
+   it "should delete unused security groups" do
+    
+   end
 end
