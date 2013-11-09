@@ -8,7 +8,9 @@ module Cloudpatrol
     table_name ||= "cloudpatrol-log"
 
     response[:task] = begin
-      response[:formatted] = Task.const_get(klass).new(aws_credentials).send(method, *args)
+       successes, failures = Task.const_get(klass).new(aws_credentials).send(method, *args)
+       response[:failures] = failures
+       response[:formatted] = successes
     rescue AWS::Errors::Base => e
       response[:formatted] = "AWS error: #{e}"
       false

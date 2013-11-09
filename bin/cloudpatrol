@@ -66,7 +66,8 @@ command "ec2" do |c|
     subc.action do |global_options,options,args|
       days = options[:days] or $config["ec2_instance_age"] or raise "Specify max age for an instance with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, days.to_i)
-      puts "Deleted #{result[:task].count} instances" if result[:task]
+      puts "Successfully deleted #{result[:task].count} instances" if result[:formatted]
+      puts "Failed to delete #{result[:failures].count} instances" if result[:failures]
     end
   end
 
