@@ -105,4 +105,36 @@ describe Cloudpatrol::Task::EC2 do
   end
 
 
+  it "should clean out unused elastic ips" do
+    client = double(AWS::EC2)
+    eip = double(AWS::EC2::ElasticIp)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:elastic_ips).with(no_args()).and_return([eip])
+    expect(eip).to receive(:instance).with(no_args()).and_return(nil)
+    expect(eip).to receive(:release).with(no_args())
+
+    actual_successes, actual_failures = ec2.clean_elastic_ips
+    actual_successes.count.should == 1
+    actual_successes.first.should == eip.inspect
+    
+    actual_failures.count.should == 0
+  end
+
+  it "should handle exceptions cleanly" do
+    client = double(AWS::EC2)
+    eip = double(AWS::EC2::ElasticIp)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:elastic_ips).with(no_args()).and_return([eip])
+    expect(eip).to receive(:instance).with(no_args()).and_return(nil)
+    expect(eip).to receive(:release).with(no_args()).and_raise(AWS::Errors::Base, "Failed to release Elastic IP")
+
+    actual_successes, actual_failures = ec2.clean_elastic_ips    
+  end
+
 end

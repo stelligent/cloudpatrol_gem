@@ -85,13 +85,18 @@ module Cloudpatrol
 
       def clean_elastic_ips
         deleted = []
+        undeleted = []
         @gate.elastic_ips.each do |ip|
           unless ip.instance
-            deleted << ip.inspect
-            ip.release
+            begin
+              ip.release
+              deleted << ip.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << ip.inspect
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
 
