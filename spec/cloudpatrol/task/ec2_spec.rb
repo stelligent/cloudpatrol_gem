@@ -119,7 +119,7 @@ describe Cloudpatrol::Task::EC2 do
     actual_successes, actual_failures = ec2.clean_elastic_ips
     actual_successes.count.should == 1
     actual_successes.first.should == eip.inspect
-    
+
     actual_failures.count.should == 0
   end
 
@@ -135,6 +135,55 @@ describe Cloudpatrol::Task::EC2 do
     expect(eip).to receive(:release).with(no_args()).and_raise(AWS::Errors::Base, "Failed to release Elastic IP")
 
     actual_successes, actual_failures = ec2.clean_elastic_ips    
+    actual_successes.count.should == 0
+
+    actual_failures.count.should == 1
+    actual_failures.first.should == eip.inspect
   end
+
+  it "should delete ports assigned to the default security group" do
+    # okay this is kind of excessive and we should clean this up
+    client = double(AWS::EC2)
+    sgc = double(AWS::EC2::SecurityGroupCollection)
+    sg = double(AWS::EC2::SecurityGroup)
+    perm = double(AWS::EC2::SecurityGroup::IpPermission)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:security_groups).with(no_args()).and_return(sgc)
+    expect(sgc).to receive(:filter).with("group-name", "default").and_return([sg])
+    expect(sg).to receive(:ingress_ip_permissions).and_return([perm])
+    expect(perm).to receive(:revoke)
+    expect(perm).to receive(:port_range).and_return(0..65535)
+
+    actual_successes, actual_failures = ec2.clean_ports_in_default
+    actual_successes.count.should == 1
+    actual_successes.first.should == {:port_range => 0..65535}
+
+    actual_failures.count.should == 0
+  end
+
+  it "should handle exceptions cleanly" do
+    client = double(AWS::EC2)
+    sgc = double(AWS::EC2::SecurityGroupCollection)
+    sg = double(AWS::EC2::SecurityGroup)
+    perm = double(AWS::EC2::SecurityGroup::IpPermission)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:security_groups).with(no_args()).and_return(sgc)
+    expect(sgc).to receive(:filter).with("group-name", "default").and_return([sg])
+    expect(sg).to receive(:ingress_ip_permissions).and_return([perm])
+    expect(perm).to receive(:revoke).and_raise(AWS::Errors::Base, "Failed to revoke permission")
+    expect(perm).to receive(:port_range).and_return(0..65535)
+
+    actual_successes, actual_failures = ec2.clean_ports_in_default
+    actual_successes.count.should == 0
+
+    actual_failures.count.should == 1
+    actual_failures.first.should == {:port_range => 0..65535}
+   end
 
 end
