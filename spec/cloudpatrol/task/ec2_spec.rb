@@ -185,9 +185,63 @@ describe Cloudpatrol::Task::EC2 do
 
     actual_failures.count.should == 1
     actual_failures.first.should == {:port_range => 0..65535}
-   end
+  end
 
-   it "should delete unused security groups" do
-    
-   end
+  it "should delete unused security groups" do
+    client = double(AWS::EC2)
+    sg = double(AWS::EC2::SecurityGroup)
+    perm = double(AWS::EC2::SecurityGroup::IpPermission)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:security_groups).exactly(2).times.and_return([sg])
+    expect(sg).to receive(:ip_permissions).and_return([perm])
+    expect(perm).to receive(:groups).and_return([])
+    expect(sg).to receive(:exists?).and_return(true)
+    expect(sg).to receive(:instances).and_return([])
+    expect(sg).to receive(:name).and_return("test_security_group")
+    expect(sg).to receive(:delete)
+
+    actual_successes, actual_failures = ec2.clean_security_groups    
+
+    actual_successes.count.should == 1
+    actual_successes.first.should == sg.inspect
+
+    actual_failures.count.should == 0
+  end
+  it "should delete unused security groups" do
+    client = double(AWS::EC2)
+    sg = double(AWS::EC2::SecurityGroup)
+    perm = double(AWS::EC2::SecurityGroup::IpPermission)
+
+    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2.instance_variable_set '@gate', client
+
+    expect(client).to receive(:security_groups).exactly(2).times.and_return([sg])
+    expect(sg).to receive(:ip_permissions).and_return([perm])
+    expect(perm).to receive(:groups).and_return([])
+    expect(sg).to receive(:exists?).and_return(true)
+    expect(sg).to receive(:instances).and_return([])
+    expect(sg).to receive(:name).and_return("test_security_group")
+    expect(sg).to receive(:delete).and_raise(AWS::Errors::Base, "Failed to delete security group")
+
+    actual_successes, actual_failures = ec2.clean_security_groups  
+
+    actual_successes.count.should == 0
+
+    actual_failures.count.should == 1
+    actual_failures.first.should == sg.inspect
+  end
+
 end
+
+
+
+
+
+
+
+
+
+

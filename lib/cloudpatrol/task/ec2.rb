@@ -55,7 +55,9 @@ module Cloudpatrol
 
       def clean_security_groups
         deleted = []
+        undeleted = []
         protected_groups = []
+        # if a security group is used by another security group, we shouldn't delete it, so find all those first
         @gate.security_groups.each do |sg|
           sg.ip_permissions.each do |perm|
             perm.groups.each do |dependent_sg|
@@ -63,13 +65,18 @@ module Cloudpatrol
             end
           end
         end
+
         @gate.security_groups.each do |sg|
           if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0 and sg.name != "default"
-            deleted << sg.inspect
-            sg.delete
+            begin
+              sg.delete
+              deleted << sg.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << sg.inspect
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_ports_in_default
