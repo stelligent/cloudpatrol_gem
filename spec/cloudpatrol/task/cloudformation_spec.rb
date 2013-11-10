@@ -20,7 +20,6 @@ describe Cloudpatrol::Task::CloudFormation do
     actual_successes.first.should == stack.inspect
 
     actual_failures.count.should == 0
-
   end
 
   it "it shouldn't delete stacks before a certain age" do
@@ -40,7 +39,6 @@ describe Cloudpatrol::Task::CloudFormation do
 
   end
 
-
   it "should handle AWS exceptions cleanly" do
     client = double(AWS::CloudFormation)
     stack = double(AWS::CloudFormation::Stack)
@@ -57,7 +55,6 @@ describe Cloudpatrol::Task::CloudFormation do
     actual_successes.count.should == 0
     actual_failures.count.should == 1
     actual_failures.first.should == stack.inspect
-
   end
 
 end
