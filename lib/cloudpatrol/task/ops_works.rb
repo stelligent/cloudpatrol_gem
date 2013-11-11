@@ -1,4 +1,4 @@
-require 'aws'
+require 'aws-sdk'
 
 
 module Cloudpatrol
@@ -11,52 +11,72 @@ module Cloudpatrol
 
       def clean_apps allowed_age
         deleted = []
+        undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
           @gate.describe_apps(stack_id: stack[:stack_id])[:apps].each do |app|
             if (Time.now - Time.parse(app[:created_at])).to_i > allowed_age.days
-              deleted << app
-              @gate.delete_app app_id: app[:app_id]
+              begin
+                @gate.delete_app app_id: app[:app_id]
+                deleted << app
+              rescue AWS::Errors::Base => e
+                undeleted << app
+              end
             end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_instances allowed_age
         deleted = []
+        undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
           @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
             if (Time.now - Time.parse(instance[:created_at])).to_i > allowed_age.days
-              deleted << instance
-              @gate.delete_instance instance_id: instance[:instance_id]
+              begin
+                @gate.delete_instance instance_id: instance[:instance_id]
+                deleted << instance
+              rescue
+                undeleted << instance
+              end
             end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_layers allowed_age
         deleted = []
+        undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
           @gate.describe_layers(stack_id: stack[:stack_id])[:layers].each do |layer|
             if (Time.now - Time.parse(layer[:created_at])).to_i > allowed_age.days
-              deleted << layer
-              @gate.delete_layer layer_id: layer[:layer_id]
+              begin
+                @gate.delete_layer layer_id: layer[:layer_id]
+                deleted << layer
+              rescue AWS::Errors::Base => e
+                undeleted << layer
+              end
             end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_stacks allowed_age
         deleted = []
+        undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
           if (Time.now - Time.parse(stack[:created_at])).to_i > allowed_age.days
-            deleted << stack
-            delete_stack_and_associated_resources(stack[:stack_id])
+            begin
+              delete_stack_and_associated_resources(stack[:stack_id])
+              deleted << stack
+            rescue AWS::Errors::Base => e
+              undeleted << stack
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def delete_stack_and_associated_resources stack_id
@@ -80,21 +100,33 @@ module Cloudpatrol
         @gate.delete_stack stack_id: stack_id
       end 
 
-      def does_stack_have_instances? stack_id
-        result = false
+      def stop_all_instances_for_stack stack_id
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
           @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
-            result = true
-            break
+            if (instance[:status] != "stopped")
+              @gate.stop_instance instance_id: instance[:instance_id]
+            end
+          end
+        end
+      end
+
+      def are_all_instances_stopped_for_stack? stack_id
+        result = true
+        @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
+            if (instance[:status] != "stopped")
+              result = false
+              break
+            end
           end
         end
         return result
       end
 
-      def does_stack_have_apps? stack_id
+      def does_stack_have_instances? stack_id
         result = false
         @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_apps(stack_id: stack[:stack_id])[:apps].each do |app|
+          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
             result = true
             break
           end
@@ -120,34 +152,6 @@ module Cloudpatrol
           @gate.describe_apps(stack_id: stack[:stack_id])[:apps].each do |app|
             result << app
             @gate.delete_app app_id: app[:app_id]
-          end
-        end
-        return result
-      end
-
-      def stop_all_instances_for_stack stack_id
-        result = []
-        @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
-
-            if (instance[:status] != "stopped")
-              @gate.stop_instance instance_id: instance[:instance_id]
-              result << instance
-            end
-          end
-        end
-        return result
-      end
-
-      def are_all_instances_stopped_for_stack? stack_id
-        result = true
-        @gate.describe_stacks({:stack_ids => [stack_id]})[:stacks].each do |stack|
-          @gate.describe_instances(stack_id: stack[:stack_id])[:instances].each do |instance|
-
-            if (instance[:status] != "stopped")
-              result = false
-              break
-            end
           end
         end
         return result
