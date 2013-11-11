@@ -131,31 +131,6 @@ describe Cloudpatrol::Task::OpsWorks do
     actual.should be_false
   end 
 
-  # this test does a lot of looping while waiting for state changes. it can be tested, but it's going to require more time than I'm willing to dedicate to it today
-  # it "should be able to delete a stack and all associated resources" do
-  #   # create a mock OpsWorks client that returns instances, and assert the method found them
-  #   client = double(AWS::OpsWorks::Client)
-
-  #   ops = Cloudpatrol::Task::OpsWorks.new Hash.new
-  #   ops.instance_variable_set '@gate', client
-  #   ops.instance_variable_set '@sleeptime', 0
-
-  #   expect(client).to receive(:describe_stacks).exactly(3).times.and_return ({ :stacks => [{ :stack_id => 123 }]})
-  #   expect(client).to receive(:describe_layers).exactly(4).times.and_return ({ :layers => [{ :layer_id => 321, :instances => [] } ]})
-  #   expect(client).to receive(:describe_instances).times.and_return ({ :instances => [ { :instance_id => 456, :status => "online" }, { :instance_id => 789, :status => "shutdown"} ]})
-  #   expect(client).to receive(:stop_instance).with({ :instance_id => 456 })
-  #   expect(client).to receive(:stop_instance).with({ :instance_id => 789 })
-  #   expect(client).to receive(:delete_instance).with({ :instance_id => 456 } )
-  #   expect(client).to receive(:delete_instance).with({ :instance_id => 789 } )
-  #   expect(client).to receive(:delete_layer).with({ :layer_id => 789 } )
-  #   expect(client).to receive(:delete_stack).with({ :stack_id => 123467890 } )
-
-
-  #   actual = ops.delete_stack_and_associated_resources 123467890
-
-  #   actual.should be_true
-  # end 
-
   it "should clean all existing OpsWorks apps after a certain age" do
     client = double(AWS::OpsWorks::Client)
 
