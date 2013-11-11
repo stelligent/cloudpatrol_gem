@@ -43,6 +43,7 @@ module Cloudpatrol
         @gate.instances.each do |instance|
           if (Time.now - instance.launch_time).to_i > allowed_age.days and instance.status != :terminated
             begin
+              instance.api_termination_disabled=false
               instance.delete
               deleted << instance.inspect
             rescue AWS::Errors::Base => e

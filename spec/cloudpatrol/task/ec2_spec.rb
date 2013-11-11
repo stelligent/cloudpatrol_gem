@@ -69,7 +69,7 @@ describe Cloudpatrol::Task::EC2 do
     actual_failures.size.should == 1
   end
 
-  it "should be able to stop all instances" do
+  it "should be able to delete all instances" do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
@@ -78,6 +78,7 @@ describe Cloudpatrol::Task::EC2 do
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
     expect(instance).to receive(:status).with(no_args()).and_return (:running)
+    expect(instance).to receive(:api_termination_disabled=).with(false)
     expect(instance).to receive(:launch_time).with(no_args()).and_return (1)
     expect(instance).to receive(:delete).with(no_args())
 
@@ -97,6 +98,7 @@ describe Cloudpatrol::Task::EC2 do
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
     expect(instance).to receive(:status).with(no_args()).and_return (:running)
+    expect(instance).to receive(:api_termination_disabled=).with(false)
     expect(instance).to receive(:launch_time).with(no_args()).and_return (0)
     expect(instance).to receive(:delete).with(no_args()).and_raise(AWS::Errors::Base, "Failed to stop instance")
 
@@ -233,5 +235,5 @@ describe Cloudpatrol::Task::EC2 do
     actual_failures.count.should == 1
     actual_failures.first.should == sg.inspect
   end
-
+  
 end
