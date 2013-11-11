@@ -235,13 +235,3 @@ describe Cloudpatrol::Task::EC2 do
   end
 
 end
-
-
-
-
-
-
-
-
-
-
