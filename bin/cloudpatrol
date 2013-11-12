@@ -64,9 +64,10 @@ command "ec2" do |c|
   c.desc "Deletes AWS EC2 Instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      days = options[:days] or $config["ec2_instance_age"] or raise "Specify max age for an instance with -d option or --config_file"
+      days = (options[:days] or $config["ec2_instance_age"]) or raise "Specify max age for an instance with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :EC2, :clean_instances, days.to_i)
-      puts "Deleted #{result[:task].count} instances" if result[:task]
+      puts "Successfully deleted #{result[:task].count} instances" if result[:formatted]
+      puts "Failed to delete #{result[:failures].count} instances" if result[:failures]
     end
   end
 
@@ -121,7 +122,7 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks apps that have existed for configurable number of days"
   c.command "clean-apps" do |subc|
     subc.action do |global_options,options,args|
-      days = options[:days] or $config["opsworks_app_age"] or raise "Specify max age for an app with -d option or --config_file"
+      days = (options[:days] or $config["opsworks_app_age"]) or raise "Specify max age for an app with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_apps, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks apps" if result[:task]
     end
@@ -130,7 +131,7 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks instances that have existed for configurable number of days"
   c.command "clean-instances" do |subc|
     subc.action do |global_options,options,args|
-      days = options[:days] or $config["opsworks_instance_age"] or raise "Specify max age for an instance with -d option or --config_file"
+      days = (options[:days] or $config["opsworks_instance_age"]) or raise "Specify max age for an instance with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_instances, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks instances" if result[:task]
     end
@@ -139,7 +140,7 @@ command "opsworks" do |c|
   c.desc "Deletes AWS OpsWorks layers that have existed for configurable number of days"
   c.command "clean-layers" do |subc|
     subc.action do |global_options,options,args|
-      days = options[:days] or $config["opsworks_layer_age"] or raise "Specify max age for a layer with -d option or --config_file"
+      days = (options[:days] or $config["opsworks_layer_age"]) or raise "Specify max age for a layer with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_layers, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks layers" if result[:task]
     end
@@ -149,7 +150,7 @@ command "opsworks" do |c|
   c.command "clean-stacks" do |subc|
     subc.action do |global_options,options,args|
       puts "Note: deleting OpsWorks stacks can take a few minutes."
-      days = options[:days] or $config["opsworks_stack_age"] or raise "Specify max age for a stack with -d option or --config_file"
+      days = (options[:days] or $config["opsworks_stack_age"]) or raise "Specify max age for a stack with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :OpsWorks, :clean_stacks, days.to_i)
       puts "Deleted #{result[:task].count} OpsWorks stacks" if result[:task]
     end
@@ -166,7 +167,7 @@ command "cloudformation" do |c|
   c.desc "Deletes AWS CloudFormation stacks that have existed for configurable number of days"
   c.command "clean-stacks" do |subc|
     subc.action do |global_options,options,args|
-      days = options[:days] or $config["cloudformation_stack_age"] or raise "Specify max age for a stack with -d option or --config_file"
+      days = (options[:days] or $config["cloudformation_stack_age"]) or raise "Specify max age for a stack with -d option or --config_file"
       result = Cloudpatrol.perform($aws_credentials, nil, :CloudFormation, :clean_stacks, days.to_i)
       puts "Deleted #{result[:task].count} CloudFormation stacks" if result[:task]
     end

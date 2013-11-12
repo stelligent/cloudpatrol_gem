@@ -8,44 +8,57 @@ module Cloudpatrol
       end
 
       def start_instances
-        result = []
+        started = []
+        unstarted = []
         @gate.instances.each do |instance|
-          result << instance.inspect
-          instance.start
+          begin
+            instance.start
+            started << instance.inspect
+          rescue AWS::Errors::Base => e
+            unstarted << instance.inspect
+          end
         end
-        result
+        return started, unstarted
       end
 
       def stop_instances allowed_age = 0
-        result = []
+        stopped = []
+        unstopped = []
         @gate.instances.each do |instance|
           if instance.status == :pending or instance.status == :running
             begin
               instance.stop
-              result << instance.inspect
-            rescue Exception => e
-              # we need a better logging solution that printing to stdout
-              puts "Failed to delete #{instance.id} because #{e}"
+              stopped << instance.inspect
+            rescue AWS::Errors::Base => e
+              unstopped << instance.inspect
             end
           end
         end
-        result
+        return stopped, unstopped
       end
 
       def clean_instances allowed_age
         deleted = []
+        undeleted = []
         @gate.instances.each do |instance|
           if (Time.now - instance.launch_time).to_i > allowed_age.days and instance.status != :terminated
-            deleted << instance.inspect
-            instance.delete
+            begin
+              instance.api_termination_disabled=false
+              instance.delete
+              deleted << instance.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << instance.inspect              
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_security_groups
         deleted = []
+        undeleted = []
         protected_groups = []
+        # if a security group is used by another security group, we shouldn't delete it, so find all those first
         @gate.security_groups.each do |sg|
           sg.ip_permissions.each do |perm|
             perm.groups.each do |dependent_sg|
@@ -53,36 +66,53 @@ module Cloudpatrol
             end
           end
         end
+
         @gate.security_groups.each do |sg|
           if !protected_groups.include?(sg) and sg.exists? and sg.instances.count == 0 and sg.name != "default"
-            deleted << sg.inspect
-            sg.delete
+            begin
+              sg.delete
+              deleted << sg.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << sg.inspect
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_ports_in_default
         deleted = []
+        undeleted = []
         @gate.security_groups.filter("group-name", "default").each do |sg|
           sg.ingress_ip_permissions.each do |perm|
-            deleted << { port_range: perm.port_range }
-            perm.revoke
+            begin
+              perm.revoke
+              deleted << { port_range: perm.port_range }
+            rescue
+              undeleted << { port_range: perm.port_range }
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
 
       def clean_elastic_ips
         deleted = []
+        undeleted = []
         @gate.elastic_ips.each do |ip|
           unless ip.instance
-            deleted << ip.inspect
-            ip.release
+            begin
+              ip.release
+              deleted << ip.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << ip.inspect
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
+
+
     end
   end
 end

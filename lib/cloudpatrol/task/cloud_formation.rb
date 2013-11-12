@@ -9,13 +9,18 @@ module Cloudpatrol
 
       def clean_stacks allowed_age
         deleted = []
+        undeleted = []
         @gate.stacks.each do |stack|
           if (Time.now - stack.creation_time).to_i > allowed_age.days
-            deleted << stack.inspect
-            stack.delete
+            begin
+              stack.delete
+              deleted << stack.inspect
+            rescue AWS::Errors::Base => e
+              undeleted << stack.inspect
+            end
           end
         end
-        deleted
+        return deleted, undeleted
       end
     end
   end
