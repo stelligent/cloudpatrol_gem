@@ -7,7 +7,7 @@ describe Cloudpatrol::Task::CloudFormation do
     client = double(AWS::CloudFormation)
     stack = double(AWS::CloudFormation::Stack)
 
-    cfn = Cloudpatrol::Task::CloudFormation.new Hash.new
+    cfn = Cloudpatrol::Task::CloudFormation.new({ :access_key_id => '', :secret_access_key => ''})
     cfn.instance_variable_set '@gate', client
 
     expect(client).to receive(:stacks).with(no_args()).and_return([stack])
@@ -26,7 +26,7 @@ describe Cloudpatrol::Task::CloudFormation do
     client = double(AWS::CloudFormation)
     stack = double(AWS::CloudFormation::Stack)
 
-    cfn = Cloudpatrol::Task::CloudFormation.new Hash.new
+    cfn = Cloudpatrol::Task::CloudFormation.new({ :access_key_id => '', :secret_access_key => ''})
     cfn.instance_variable_set '@gate', client
 
     expect(client).to receive(:stacks).with(no_args()).and_return([stack])
@@ -43,7 +43,7 @@ describe Cloudpatrol::Task::CloudFormation do
     client = double(AWS::CloudFormation)
     stack = double(AWS::CloudFormation::Stack)
 
-    cfn = Cloudpatrol::Task::CloudFormation.new Hash.new
+    cfn = Cloudpatrol::Task::CloudFormation.new ({ :access_key_id => '', :secret_access_key => ''})
     cfn.instance_variable_set '@gate', client
 
     expect(client).to receive(:stacks).with(no_args()).and_return([stack])

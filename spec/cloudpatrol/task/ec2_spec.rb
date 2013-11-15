@@ -7,7 +7,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -25,7 +25,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -41,7 +41,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -58,7 +58,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -73,7 +73,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -93,7 +93,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     instance = double(AWS::EC2::Instance)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:instances).with(no_args()).and_return ([instance])
@@ -112,7 +112,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     eip = double(AWS::EC2::ElasticIp)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:elastic_ips).with(no_args()).and_return([eip])
@@ -130,7 +130,7 @@ describe Cloudpatrol::Task::EC2 do
     client = double(AWS::EC2)
     eip = double(AWS::EC2::ElasticIp)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:elastic_ips).with(no_args()).and_return([eip])
@@ -151,7 +151,7 @@ describe Cloudpatrol::Task::EC2 do
     sg = double(AWS::EC2::SecurityGroup)
     perm = double(AWS::EC2::SecurityGroup::IpPermission)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:security_groups).with(no_args()).and_return(sgc)
@@ -173,7 +173,7 @@ describe Cloudpatrol::Task::EC2 do
     sg = double(AWS::EC2::SecurityGroup)
     perm = double(AWS::EC2::SecurityGroup::IpPermission)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:security_groups).with(no_args()).and_return(sgc)
@@ -194,7 +194,7 @@ describe Cloudpatrol::Task::EC2 do
     sg = double(AWS::EC2::SecurityGroup)
     perm = double(AWS::EC2::SecurityGroup::IpPermission)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:security_groups).exactly(2).times.and_return([sg])
@@ -217,7 +217,7 @@ describe Cloudpatrol::Task::EC2 do
     sg = double(AWS::EC2::SecurityGroup)
     perm = double(AWS::EC2::SecurityGroup::IpPermission)
 
-    ec2 = Cloudpatrol::Task::EC2.new Hash.new
+    ec2 = Cloudpatrol::Task::EC2.new ({ :access_key_id => '', :secret_access_key => ''})
     ec2.instance_variable_set '@gate', client
 
     expect(client).to receive(:security_groups).exactly(2).times.and_return([sg])

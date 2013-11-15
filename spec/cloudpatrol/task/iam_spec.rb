@@ -8,7 +8,7 @@ describe Cloudpatrol::Task::IAM do
     user = double(AWS::IAM::User)
     mfacollection = double(AWS::IAM::MFADeviceCollection)
 
-    iam = Cloudpatrol::Task::IAM.new Hash.new
+    iam = Cloudpatrol::Task::IAM.new({ :access_key_id => '', :secret_access_key => ''})
     iam.instance_variable_set '@gate', client
 
     expect(client).to receive(:users).with(no_args()).and_return ([user])
@@ -30,7 +30,7 @@ describe Cloudpatrol::Task::IAM do
     user = double(AWS::IAM::User)
     mfacollection = double(AWS::IAM::MFADeviceCollection)
 
-    iam = Cloudpatrol::Task::IAM.new Hash.new
+    iam = Cloudpatrol::Task::IAM.new({ :access_key_id => '', :secret_access_key => ''})
     iam.instance_variable_set '@gate', client
 
     expect(client).to receive(:users).with(no_args()).and_return ([user])
@@ -46,7 +46,7 @@ describe Cloudpatrol::Task::IAM do
     user = double(AWS::IAM::User)
     mfacollection = double(AWS::IAM::MFADeviceCollection)
 
-    iam = Cloudpatrol::Task::IAM.new Hash.new
+    iam = Cloudpatrol::Task::IAM.new({ :access_key_id => '', :secret_access_key => ''})
     iam.instance_variable_set '@gate', client
 
     expect(client).to receive(:users).with(no_args()).and_return ([user])
@@ -66,7 +66,7 @@ describe Cloudpatrol::Task::IAM do
     user2 = double(AWS::IAM::User)
     mfacollection = double(AWS::IAM::MFADeviceCollection)
 
-    iam = Cloudpatrol::Task::IAM.new Hash.new
+    iam = Cloudpatrol::Task::IAM.new({ :access_key_id => '', :secret_access_key => ''})
     iam.instance_variable_set '@gate', client
 
     expect(client).to receive(:users).with(no_args()).and_return ([user1, user2])

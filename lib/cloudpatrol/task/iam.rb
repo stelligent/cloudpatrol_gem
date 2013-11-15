@@ -5,7 +5,7 @@ module Cloudpatrol
     class IAM
 
       def initialize cred
-        @gate = ::AWS::IAM.new(cred)
+        @gate = iam_client(cred)
       end
 
       def clean_users
@@ -25,6 +25,23 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
+      private
+
+      def iam_client(credentials_map)
+        if not valid_credentials_map(credentials_map)
+          raise "Improper AWS credentials supplied.  Map missing proper keys: #{credentials_map}"
+        end
+
+        if not credentials_map[:access_key_id].strip.empty?
+          ::AWS::IAM.new
+        else
+          ::AWS::IAM.new(credentials_map)
+        end
+      end
+
+      def valid_credentials_map(credentials_map)
+        credentials_map[:access_key_id] and credentials_map[:secret_access_key]
+      end
     end
   end
 end

@@ -4,7 +4,7 @@ module Cloudpatrol
   module Task
     class EC2
       def initialize cred
-        @gate = ::AWS::EC2.new(cred)
+        @gate = ec2_client(cred)
       end
 
       def start_instances
@@ -21,7 +21,7 @@ module Cloudpatrol
         return started, unstarted
       end
 
-      def stop_instances allowed_age = 0
+      def stop_instances
         stopped = []
         unstopped = []
         @gate.instances.each do |instance|
@@ -112,7 +112,23 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
+      private
 
+      def ec2_client(credentials_map)
+        if not valid_credentials_map(credentials_map)
+          raise "Improper AWS credentials supplied.  Map missing proper keys: #{credentials_map}"
+        end
+
+        if not credentials_map[:access_key_id].strip.empty?
+          ::AWS::EC2.new
+        else
+          ::AWS::EC2.new(credentials_map)
+        end
+      end
+
+      def valid_credentials_map(credentials_map)
+        credentials_map[:access_key_id] and credentials_map[:secret_access_key]
+      end
     end
   end
 end

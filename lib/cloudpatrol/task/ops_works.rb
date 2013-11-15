@@ -5,7 +5,7 @@ module Cloudpatrol
   module Task
     class OpsWorks
       def initialize cred
-        @gate = ::AWS::OpsWorks::Client.new(cred)
+        @gate = opsworks_client(cred)
         @sleeptime = 10
       end
 
@@ -190,6 +190,24 @@ module Cloudpatrol
         end
         return result        
       end    
+
+      private
+
+      def opsworks_client(credentials_map)
+        if not valid_credentials_map(credentials_map)
+          raise "Improper AWS credentials supplied.  Map missing proper keys: #{credentials_map}"
+        end
+
+        if not credentials_map[:access_key_id].strip.empty?
+          ::AWS::OpsWorks::Client.new
+        else
+          ::AWS::OpsWorks::Client.new(credentials_map)
+        end
+      end
+
+      def valid_credentials_map(credentials_map)
+        credentials_map[:access_key_id] and credentials_map[:secret_access_key]
+      end
 
     end
   end

@@ -15,11 +15,28 @@ require 'cloudpatrol'
 
 
 describe Cloudpatrol::Task::OpsWorks do
-  it "should be able to detect if a stack has running instances" do 
+
+ # it 'should be able to avoid deleting stacks that are in a whitelist' do
+
+ # end
+
+  #this is sort of a useless test without seeing it in action
+  #it 'should use the default OpsWorks constructor if credential values are blank so that instance profiles will be in effect' do
+  #  Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
+  #  expect(true).should be(true)
+  #end
+
+  it 'should raise an exception if the credentials map doesnt contain the expect keys' do
+    expect {
+      Cloudpatrol::Task::OpsWorks.new({ :foo => ''})
+    }.to raise_error('Improper AWS credentials supplied.  Map missing proper keys: {:foo=>""}')
+  end
+
+  it 'should be able to detect if a stack has running instances' do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -33,7 +50,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns no instances, and assert the method found none
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -47,7 +64,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -62,7 +79,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -76,7 +93,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -90,7 +107,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with({ :stack_ids => [123]}).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -107,7 +124,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -121,7 +138,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # create a mock OpsWorks client that returns instances, and assert the method found them
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return ({ :stacks => [{ :stack_id => 123 }]})
@@ -134,7 +151,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should clean all existing OpsWorks apps after a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -154,7 +171,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should ignore all existing OpsWorks apps before a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -172,7 +189,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should handle errors cleaning when cleaning OpsWorks apps" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -192,7 +209,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should delete all OpsWorks instances after a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -212,7 +229,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should ignore all OpsWorks instances before a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -229,7 +246,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should handle errors cleanly when deleting OpsWorks instances" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -250,7 +267,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should delete all OpsWorks layers after a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -270,7 +287,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should ignore all OpsWorks layers before a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -287,7 +304,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should handle errrors cleanly when deleting OpsWorks layers" do
         client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
 
     expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
@@ -308,7 +325,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # simulates deleting an entire stack, including layers, apps, and instances, so it's a bit complex.
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
     ops.instance_variable_set '@sleeptime', 0
 
@@ -349,7 +366,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should ignore all OpsWorks stacks before a certain age" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
     ops.instance_variable_set '@sleeptime', 0
 
@@ -368,7 +385,7 @@ describe Cloudpatrol::Task::OpsWorks do
     # simulates deleting an entire stack, including layers, apps, and instances, so it's a bit complex.
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
     ops.instance_variable_set '@sleeptime', 0
 
@@ -409,7 +426,7 @@ describe Cloudpatrol::Task::OpsWorks do
   it "should handle errrors cleanly when deleting OpsWorks stacks" do
     client = double(AWS::OpsWorks::Client)
 
-    ops = Cloudpatrol::Task::OpsWorks.new Hash.new
+    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
     ops.instance_variable_set '@gate', client
     ops.instance_variable_set '@sleeptime', 0
 
