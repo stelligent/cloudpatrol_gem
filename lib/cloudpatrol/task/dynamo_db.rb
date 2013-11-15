@@ -46,7 +46,7 @@ module Cloudpatrol
           raise "Improper AWS credentials supplied.  Map missing proper keys: #{credentials_map}"
         end
 
-        if not credentials_map[:access_key_id].strip.empty?
+        if credentials_map[:access_key_id].strip.empty?
           ::AWS::DynamoDB.new
         else
           ::AWS::DynamoDB.new(credentials_map)
