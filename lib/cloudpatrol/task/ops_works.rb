@@ -4,12 +4,12 @@ require 'aws-sdk'
 module Cloudpatrol
   module Task
     class OpsWorks
-      def initialize cred
+      def initialize(cred)
         @gate = opsworks_client(cred)
         @sleeptime = 10
       end
 
-      def clean_apps allowed_age
+      def clean_apps(allowed_age)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
@@ -18,7 +18,7 @@ module Cloudpatrol
               begin
                 @gate.delete_app app_id: app[:app_id]
                 deleted << app
-              rescue AWS::Errors::Base => e
+              rescue
                 undeleted << app
               end
             end
@@ -27,7 +27,7 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_instances allowed_age
+      def clean_instances(allowed_age)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
@@ -45,7 +45,7 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_layers allowed_age
+      def clean_layers(allowed_age)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
@@ -54,7 +54,7 @@ module Cloudpatrol
               begin
                 @gate.delete_layer layer_id: layer[:layer_id]
                 deleted << layer
-              rescue AWS::Errors::Base => e
+              rescue
                 undeleted << layer
               end
             end
@@ -63,15 +63,22 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_stacks allowed_age
+
+
+
+      def clean_stacks(allowed_age, whitelist=nil)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
-          if (Time.now - Time.parse(stack[:created_at])).to_i > allowed_age.days
+          if expired(stack[:created_at], allowed_age)
             begin
-              delete_stack_and_associated_resources(stack[:stack_id])
-              deleted << stack
-            rescue AWS::Errors::Base => e
+              if whitelisted(stack[:stack_id], whitelist)
+                undeleted << stack
+              else
+                delete_stack_and_associated_resources(stack[:stack_id])
+                deleted << stack
+              end
+            rescue
               undeleted << stack
             end
           end
@@ -193,8 +200,16 @@ module Cloudpatrol
 
       private
 
+      def whitelisted(stack_id, whitelist)
+        if whitelist.nil?
+          false
+        else
+          whitelist.include? stack_id
+        end
+      end
+
       def opsworks_client(credentials_map)
-        if not valid_credentials_map(credentials_map)
+        unless valid_credentials_map(credentials_map)
           raise "Improper AWS credentials supplied.  Map missing proper keys: #{credentials_map}"
         end
 
@@ -207,6 +222,10 @@ module Cloudpatrol
 
       def valid_credentials_map(credentials_map)
         credentials_map[:access_key_id] and credentials_map[:secret_access_key]
+      end
+
+      def expired(time_string, allowed_age)
+        (Time.now - Time.parse(time_string)).to_i > allowed_age.days
       end
 
     end
