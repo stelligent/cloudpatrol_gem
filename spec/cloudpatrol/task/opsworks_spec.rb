@@ -38,336 +38,321 @@ describe Cloudpatrol::Task::OpsWorks do
     end
   end
 
-  it 'should be able to detect if a stack has running instances' do
-    expect(@client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [stack_json(123) ]})
-    expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return ({ :instances => [ { :instance_id => 456 }, { :instance_id => 789} ]})
+  context 'does stack have instances' do
+    it 'should be able to detect if a stack has running instances' do
+      expect(@client).to receive(:describe_stacks)
+        .with({ :stack_ids => [123] })
+        .and_return ({ :stacks => [stack_json(123) ]})
 
-    actual = @ops.does_stack_have_instances? 123
-    expect(actual).to be_true
+      expect(@client).to receive(:describe_instances)
+        .with({ :stack_id => 123 })
+        .and_return ({ :instances => [ { :instance_id => 456 }, { :instance_id => 789} ]})
+
+      actual = @ops.does_stack_have_instances? 123
+      expect(actual).to be_true
+    end
+
+    it 'should be able to detect if a stack has no running instances' do
+      expect(@client).to receive(:describe_stacks)
+        .with({ :stack_ids => [123] })
+        .and_return ({ :stacks => [stack_json(123) ]})
+      expect(@client).to receive(:describe_instances)
+        .with({ :stack_id => 123 })
+        .and_return ({ :instances => []})
+
+      actual = @ops.does_stack_have_instances? 123
+      actual.should be_false
+    end
   end
 
-  it 'should be able to detect if a stack has no running instances' do
-    expect(@client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [stack_json(123) ]})
-    expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return ({ :instances => []})
-
-    actual = @ops.does_stack_have_instances? 123
-    actual.should be_false
-  end
-
-  it 'should be able to stop all instances in a stack' do
-    online_and_stopped_instances = {
-      :instances => [
-          { :instance_id => 456, :status => 'online' },
-          { :instance_id => 789, :status => 'stopped'}
-      ]
-    }
-
-    expect(@client).to receive(:describe_stacks)
-      .with({ :stack_ids => [123] })
-      .and_return ({ :stacks => [{ :stack_id => 123 }]})
-
-    expect(@client).to receive(:describe_instances)
-      .with({ :stack_id => 123 })
-      .and_return (online_and_stopped_instances)
-
-    expect(@client).to receive(:stop_instance)
-      .with({ :instance_id => 456 })
-
-    actual = @ops.stop_all_instances_for_stack 123
-    actual.should be_true
-  end 
-
-  it 'should be able to determine if all instances in a stack are stopped' do
-    two_stopped_instances = {
+  context 'stop or delete instances in stack' do
+    it 'should be able to stop all instances in a stack' do
+      online_and_stopped_instances = {
         :instances => [
-            { :instance_id => 456, :status => 'stopped' },
+            { :instance_id => 456, :status => 'online' },
             { :instance_id => 789, :status => 'stopped'}
         ]
-    }
+      }
 
-    expect(@client).to receive(:describe_stacks)
-      .with({ :stack_ids => [123] })
-      .and_return ({ :stacks => [{ :stack_id => 123 }]})
+      expect(@client).to receive(:describe_stacks)
+        .with({ :stack_ids => [123] })
+        .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-    expect(@client).to receive(:describe_instances)
-      .with({ :stack_id => 123 })
-      .and_return (two_stopped_instances)
+      expect(@client).to receive(:describe_instances)
+        .with({ :stack_id => 123 })
+        .and_return (online_and_stopped_instances)
 
-    actual = @ops.are_all_instances_stopped_for_stack? 123
-    actual.should be_true
-  end 
+      expect(@client).to receive(:stop_instance)
+        .with({ :instance_id => 456 })
 
-  it 'should be able to determine if any instances in a layer are running' do
+      actual = @ops.stop_all_instances_for_stack 123
+      actual.should be_true
+    end
 
-    expect(@client).to receive(:describe_stacks).with({ :stack_ids => [123] }).and_return ({ :stacks => [{ :stack_id => 123 }]})
-    expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return ({ :instances => [ { :instance_id => 456, :status => "online" }, { :instance_id => 789, :status => "stopped"} ]})
+    it 'should be able to delete all instances in a stack' do
+      one_online_and_one_shutdown_instance = {
+          :instances => [
+              { :instance_id => 456, :status => 'online' },
+              { :instance_id => 789, :status => 'shutdown'}
+          ]
+      }
 
-    actual = @ops.are_all_instances_stopped_for_stack? 123
-    actual.should be_false
-  end 
+      expect(@client).to receive(:describe_stacks)
+                         .with({ :stack_ids => [123]})
+                         .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-  it 'should be able to delete all instances in a stack' do
+      expect(@client).to receive(:describe_instances)
+                         .with({ :stack_id => 123  })
+                         .and_return (one_online_and_one_shutdown_instance)
 
-    expect(@client).to receive(:describe_stacks).with({ :stack_ids => [123]}).and_return ({ :stacks => [{ :stack_id => 123 }]})
-    expect(@client).to receive(:describe_instances).with({ :stack_id => 123  }).and_return ({ :instances => [ { :instance_id => 456, :status => "online" }, { :instance_id => 789, :status => "shutdown"} ]})
-    expect(@client).to receive(:delete_instance).with({ :instance_id => 456 } )
-    expect(@client).to receive(:delete_instance).with({ :instance_id => 789 } )
+      [ { :instance_id => 456 }, { :instance_id => 789 } ].each do |instance_to_delete|
+        expect(@client).to receive(:delete_instance)
+                           .with(instance_to_delete)
+      end
 
-    actual = @ops.delete_all_instances_for_stack 123
-    actual.should be_true
-  end 
+      actual = @ops.delete_all_instances_for_stack 123
+      actual.should be_true
+    end
+  end
+  context 'are_all_instances_stopped_for_stack?' do
+    it 'should be able to determine if all instances in a stack are stopped' do
+      two_stopped_instances = {
+          :instances => [
+              { :instance_id => 456, :status => 'stopped' },
+              { :instance_id => 789, :status => 'stopped'}
+          ]
+      }
 
+      expect(@client).to receive(:describe_stacks)
+        .with({ :stack_ids => [123] })
+        .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-  it "should be able to determine if there are layers in a stack" do
-    # create a mock OpsWorks client that returns instances, and assert the method found them
-    client = double(AWS::OpsWorks::Client)
+      expect(@client).to receive(:describe_instances)
+        .with({ :stack_id => 123 })
+        .and_return (two_stopped_instances)
 
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
+      actual = @ops.are_all_instances_stopped_for_stack? 123
+      actual.should be_true
+    end
 
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return ({ :stacks => [{ :stack_id => 123 }]})
-    expect(client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return ({ :layers => [{ :instances => [] } ]})
-  
-    actual = ops.does_stack_have_layers? 123
-    actual.should be_true
-  end 
+    it 'should be able to determine if any instances in a layer are running' do
 
-  it "should be able to determine if there are not any layers in a stack" do
-    # create a mock OpsWorks client that returns instances, and assert the method found them
-    client = double(AWS::OpsWorks::Client)
+      one_online_instance_and_one_stopped_instance = {
+        :instances => [
+            { :instance_id => 456, :status => 'online' },
+            { :instance_id => 789, :status => 'stopped'}
+        ]
+      }
 
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
+      expect(@client).to receive(:describe_stacks)
+        .with({ :stack_ids => [123] })
+        .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return ({ :stacks => [{ :stack_id => 123 }]})
-    expect(client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return ({ :layers => []})
-  
-    actual = ops.does_stack_have_layers? 123
-    actual.should be_false
-  end 
+      expect(@client).to receive(:describe_instances)
+        .with({ :stack_id => 123 })
+        .and_return (one_online_instance_and_one_stopped_instance)
 
-
-  it 'should clean all existing OpsWorks apps after a certain age' do
-    client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :app_id => 987, :created_at => creation_time}
-    expect(client).to receive(:describe_apps).with({ :stack_id => 123}).and_return({:apps => [expected]})
-    expect(client).to receive(:delete_app).with({:app_id => 987})
-
-    actual_successes, actual_failures = ops.clean_apps 2
-
-    actual_successes.count.should == 1
-    actual_successes.first.should == expected
-
-    actual_failures.count.should == 0
+      actual = @ops.are_all_instances_stopped_for_stack? 123
+      actual.should be_false
+    end
   end
 
-  it 'should ignore all existing OpsWorks apps before a certain age' do
+  context 'does_stack_have_layers?' do
+    it 'should be able to determine if there are layers in a stack' do
 
-    expect(@client).to receive(:describe_stacks)
-      .with(no_args())
-      .and_return({ :stacks => [ stack_json(123) ] })
+      expect(@client).to receive(:describe_stacks)
+        .with(no_args())
+        .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :app_id => 987, :created_at => creation_time}
+      expect(@client).to receive(:describe_layers)
+        .with({ :stack_id => 123 })
+        .and_return ({ :layers => [{ :instances => [] } ]})
 
-    expect(@client).to receive(:describe_apps)
-      .with({ :stack_id => 123})
-      .and_return({:apps => [expected]})
+      actual = @ops.does_stack_have_layers? 123
+      actual.should be_true
+    end
 
-    actual_successes, actual_failures = @ops.clean_apps 4
+    it 'should be able to determine if there are not any layers in a stack' do
 
-    actual_successes.count.should == 0
+      expect(@client).to receive(:describe_stacks)
+        .with(no_args())
+        .and_return ({ :stacks => [{ :stack_id => 123 }]})
 
-    actual_failures.count.should == 0
+      expect(@client).to receive(:describe_layers)
+        .with({ :stack_id => 123 })
+        .and_return ({ :layers => []})
+
+      actual = @ops.does_stack_have_layers? 123
+      actual.should be_false
+    end
   end
 
+  context 'clean apps' do
 
+    it 'should clean all existing OpsWorks apps after a certain age' do
 
-  it 'should handle errors cleaning when cleaning OpsWorks apps' do
-    client = double(AWS::OpsWorks::Client)
+      expect(@client).to receive(:describe_stacks)
+        .with(no_args())
+        .and_return({ :stacks => [{ :stack_id => 123 }] })
 
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :app_id => 987, :created_at => creation_time}
+      expect(@client).to receive(:describe_apps)
+        .with({ :stack_id => 123})
+        .and_return({:apps => [expected]})
 
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :app_id => 987, :created_at => creation_time}
-    expect(client).to receive(:describe_apps).with({ :stack_id => 123}).and_return({:apps => [expected]})
-    expect(client).to receive(:delete_app).with({:app_id => 987}).and_raise(AWS::Errors::Base, "Failed to delete app")
+      expect(@client).to receive(:delete_app)
+        .with({:app_id => 987})
 
-    actual_successes, actual_failures = ops.clean_apps 2
+      actual_successes, actual_failures = @ops.clean_apps 2
 
-    actual_successes.count.should == 0
+      actual_successes.count.should == 1
+      actual_successes.first.should == expected
 
-    actual_failures.count.should == 1
-    actual_failures.first.should == expected
+      actual_failures.count.should == 0
+    end
+
+    it 'should ignore all existing OpsWorks apps before a certain age' do
+
+      expect(@client).to receive(:describe_stacks)
+        .with(no_args())
+        .and_return({ :stacks => [ stack_json(123) ] })
+
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :app_id => 987, :created_at => creation_time}
+
+      expect(@client).to receive(:describe_apps)
+        .with({ :stack_id => 123})
+        .and_return({:apps => [expected]})
+
+      actual_successes, actual_failures = @ops.clean_apps 4
+
+      actual_successes.count.should == 0
+
+      actual_failures.count.should == 0
+    end
+
+    it 'should handle errors cleaning when cleaning OpsWorks apps' do
+
+      expect(@client).to receive(:describe_stacks)
+        .with(no_args())
+        .and_return({ :stacks => [{ :stack_id => 123 }] })
+
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :app_id => 987, :created_at => creation_time}
+
+      expect(@client).to receive(:describe_apps)
+        .with({ :stack_id => 123})
+        .and_return({:apps => [expected]})
+
+      expect(@client).to receive(:delete_app)
+        .with({:app_id => 987})
+        .and_raise(AWS::Errors::Base, 'Failed to delete app')
+
+      actual_successes, actual_failures = @ops.clean_apps 2
+
+      actual_successes.count.should == 0
+
+      actual_failures.count.should == 1
+      actual_failures.first.should == expected
+    end
   end
 
-  it 'should delete all OpsWorks instances after a certain age' do
-    client = double(AWS::OpsWorks::Client)
+  context 'clean instances' do
+    it 'should delete all OpsWorks instances after a certain age' do
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :instance_id => 456, :created_at => creation_time}
+      expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
+      expect(@client).to receive(:delete_instance).with({ :instance_id => 456 })
 
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
+      actual_successes, actual_failures = @ops.clean_instances 2
 
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :instance_id => 456, :created_at => creation_time}
-    expect(client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
-    expect(client).to receive(:delete_instance).with({ :instance_id => 456 })
+      actual_successes.count.should == 1
+      actual_successes.first.should == expected
 
-    actual_successes, actual_failures = ops.clean_instances 2
+      actual_failures.count.should == 0
+    end
 
-    actual_successes.count.should == 1
-    actual_successes.first.should == expected
+    it 'should ignore all OpsWorks instances before a certain age' do
 
-    actual_failures.count.should == 0
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :instance_id => 456, :created_at => creation_time}
+      expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
+
+      actual_successes, actual_failures = @ops.clean_instances 4
+
+      actual_successes.count.should == 0
+      actual_failures.count.should == 0
+    end
+
+    it 'should handle errors cleanly when deleting OpsWorks instances' do
+
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :instance_id => 456, :created_at => creation_time}
+      expect(@client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
+      expect(@client).to receive(:delete_instance).with({ :instance_id => 456 }).and_raise(AWS::Errors::Base, "Failed to delete instance")
+
+      actual_successes, actual_failures = @ops.clean_instances 2
+
+      actual_successes.count.should == 0
+
+      actual_failures.count.should == 1
+      actual_failures.first.should == expected
+    end
   end
 
-  it 'should ignore all OpsWorks instances before a certain age' do
-    client = double(AWS::OpsWorks::Client)
+  context 'clean_layers' do
 
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
+    it 'should delete all OpsWorks layers after a certain age' do
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :layer_id => 321, :created_at => creation_time}
+      expect(@client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
+      expect(@client).to receive(:delete_layer).with({ :layer_id => 321 })
 
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :instance_id => 456, :created_at => creation_time}
-    expect(client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
+      actual_successes, actual_failures = @ops.clean_layers 2
 
-    actual_successes, actual_failures = ops.clean_instances 4
+      actual_successes.count.should == 1
+      actual_successes.first.should == expected
 
-    actual_successes.count.should == 0
-    actual_failures.count.should == 0
+      actual_failures.count.should == 0
+    end
+
+    it 'should ignore all OpsWorks layers before a certain age' do
+
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :layer_id => 321, :created_at => creation_time}
+      expect(@client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
+
+      actual_successes, actual_failures = @ops.clean_layers 4
+
+      actual_successes.count.should == 0
+      actual_failures.count.should == 0
+    end
+
+    it 'should handle errrors cleanly when deleting OpsWorks layers' do
+
+      expect(@client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
+      creation_time = "#{Time.now - 3.days}"
+      expected = { :layer_id => 321, :created_at => creation_time}
+      expect(@client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
+      expect(@client).to receive(:delete_layer).with({ :layer_id => 321 }).and_raise(AWS::Errors::Base, "Failed to delete layer")
+
+      actual_successes, actual_failures = @ops.clean_layers 2
+
+      actual_successes.count.should == 0
+
+      actual_failures.count.should == 1
+      actual_failures.first.should == expected
+    end
+
   end
 
-  it "should handle errors cleanly when deleting OpsWorks instances" do
-    client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :instance_id => 456, :created_at => creation_time}
-    expect(client).to receive(:describe_instances).with({ :stack_id => 123 }).and_return({ :instances => [expected] })
-    expect(client).to receive(:delete_instance).with({ :instance_id => 456 }).and_raise(AWS::Errors::Base, "Failed to delete instance")
-
-    actual_successes, actual_failures = ops.clean_instances 2
-
-    actual_successes.count.should == 0
-
-    actual_failures.count.should == 1
-    actual_failures.first.should == expected
-  end
-
-
-  it "should delete all OpsWorks layers after a certain age" do
-    client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :layer_id => 321, :created_at => creation_time}
-    expect(client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
-    expect(client).to receive(:delete_layer).with({ :layer_id => 321 })
-
-    actual_successes, actual_failures = ops.clean_layers 2
-
-    actual_successes.count.should == 1
-    actual_successes.first.should == expected
-
-    actual_failures.count.should == 0
-  end
-
-  it "should ignore all OpsWorks layers before a certain age" do
-    client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :layer_id => 321, :created_at => creation_time}
-    expect(client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
-
-    actual_successes, actual_failures = ops.clean_layers 4
-
-    actual_successes.count.should == 0
-    actual_failures.count.should == 0
-  end
-
-  it "should handle errrors cleanly when deleting OpsWorks layers" do
-        client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-
-    expect(client).to receive(:describe_stacks).with(no_args()).and_return({ :stacks => [{ :stack_id => 123 }] })
-    creation_time = "#{Time.now - 3.days}"
-    expected = { :layer_id => 321, :created_at => creation_time}
-    expect(client).to receive(:describe_layers).with({ :stack_id => 123 }).and_return({ :layers => [expected] })
-    expect(client).to receive(:delete_layer).with({ :layer_id => 321 }).and_raise(AWS::Errors::Base, "Failed to delete layer")
-
-    actual_successes, actual_failures = ops.clean_layers 2
-
-    actual_successes.count.should == 0
-
-    actual_failures.count.should == 1
-    actual_failures.first.should == expected
-  end
-
-  it "should delete all OpsWorks stacks after a certain age" do
-    # simulates deleting an entire stack, including layers, apps, and instances, so it's a bit complex.
-    client = double(AWS::OpsWorks::Client)
-
-    ops = Cloudpatrol::Task::OpsWorks.new({ :access_key_id => '', :secret_access_key => ''})
-    ops.instance_variable_set '@gate', client
-    ops.instance_variable_set '@sleeptime', 0
-
-    creation_time = "#{Time.now - 3.days}"
-    expected_stack = { :stack_id => 123, :created_at => creation_time}
-    expect(client).to receive(:describe_stacks).with(no_args()).at_least(3).times.and_return({ :stacks => [expected_stack] })
-
-    expect(client).to receive(:describe_stacks).with({:stack_ids => [123]}).at_least(:once).and_return({ :stacks => [expected_stack] })
-    
-    expected_app = { :app_id => 987, :created_at => creation_time}
-    expect(client).to receive(:describe_apps).with({ :stack_id => 123}).and_return({:apps => [expected_app]}, {:apps => [expected_app]}, {:apps => []})
-    expect(client).to receive(:delete_app).with({:app_id => 987})
-
-    expected_instance_online = { :instance_id => 456, :created_at => creation_time, :status => "online"}
-    expected_instance_stopped = { :instance_id => 456, :created_at => creation_time, :status => "stopped"}
-    expect(client).to receive(:describe_instances).with({:stack_id => 123}).and_return(
-      {:instances => [expected_instance_online]},  # all stopped?
-      {:instances => [expected_instance_online]},  # stop
-      {:instances => [expected_instance_stopped]}, # all stoppped?
-      {:instances => [expected_instance_stopped]}, # exist?
-      {:instances => [expected_instance_stopped]}, # delete
-      {:instances => []}  )                        # exist?
-    expect(client).to receive(:stop_instance).with({ :instance_id => 456 }).exactly(:once)
-    expect(client).to receive(:delete_instance).with({ :instance_id => 456 }).exactly(:once)
-    expected_layer = { :layer_id => 321, :created_at => creation_time}
-    expect(client).to receive(:describe_layers).with({:stack_id => 123}).and_return({:layers => [expected_layer]}, {:layers => [expected_layer]}, {:layers => []})
-    expect(client).to receive(:delete_layer).with({ :layer_id => 321 }).exactly(:once)
-    expect(client).to receive(:delete_stack).with({:stack_id => 123})
-
-    actual_successes, actual_failures = ops.clean_stacks 2
-
-    actual_successes.count.should == 1
-    actual_successes.first.should == expected_stack
-
-    actual_failures.count.should == 0
-  end
-
-
-  context 'clean_stack' do
+  context 'clean_stacks' do
     it 'should be able to avoid deleting stacks that are in a whitelist' do
 
       whitelist = [ 2 ]
@@ -486,6 +471,43 @@ describe Cloudpatrol::Task::OpsWorks do
 
       actual_failures.count.should == 1
       actual_failures.first.should == expected_stack
+    end
+
+    it 'should delete all OpsWorks stacks after a certain age' do
+      @ops.instance_variable_set '@sleeptime', 0
+
+      creation_time = "#{Time.now - 3.days}"
+      expected_stack = { :stack_id => 123, :created_at => creation_time}
+      expect(@client).to receive(:describe_stacks).with(no_args()).at_least(3).times.and_return({ :stacks => [expected_stack] })
+
+      expect(@client).to receive(:describe_stacks).with({:stack_ids => [123]}).at_least(:once).and_return({ :stacks => [expected_stack] })
+
+      expected_app = { :app_id => 987, :created_at => creation_time}
+      expect(@client).to receive(:describe_apps).with({ :stack_id => 123}).and_return({:apps => [expected_app]}, {:apps => [expected_app]}, {:apps => []})
+      expect(@client).to receive(:delete_app).with({:app_id => 987})
+
+      expected_instance_online = { :instance_id => 456, :created_at => creation_time, :status => "online"}
+      expected_instance_stopped = { :instance_id => 456, :created_at => creation_time, :status => "stopped"}
+      expect(@client).to receive(:describe_instances).with({:stack_id => 123}).and_return(
+                             {:instances => [expected_instance_online]},  # all stopped?
+                             {:instances => [expected_instance_online]},  # stop
+                             {:instances => [expected_instance_stopped]}, # all stoppped?
+                             {:instances => [expected_instance_stopped]}, # exist?
+                             {:instances => [expected_instance_stopped]}, # delete
+                             {:instances => []}  )                        # exist?
+      expect(@client).to receive(:stop_instance).with({ :instance_id => 456 }).exactly(:once)
+      expect(@client).to receive(:delete_instance).with({ :instance_id => 456 }).exactly(:once)
+      expected_layer = { :layer_id => 321, :created_at => creation_time}
+      expect(@client).to receive(:describe_layers).with({:stack_id => 123}).and_return({:layers => [expected_layer]}, {:layers => [expected_layer]}, {:layers => []})
+      expect(@client).to receive(:delete_layer).with({ :layer_id => 321 }).exactly(:once)
+      expect(@client).to receive(:delete_stack).with({:stack_id => 123})
+
+      actual_successes, actual_failures = @ops.clean_stacks 2
+
+      actual_successes.count.should == 1
+      actual_successes.first.should == expected_stack
+
+      actual_failures.count.should == 0
     end
   end
 
