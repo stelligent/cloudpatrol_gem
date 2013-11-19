@@ -8,7 +8,7 @@ module Cloudpatrol
         @gate = iam_client(cred)
       end
 
-      def clean_users
+      def clean_users whitelist=nil
         deleted = []
         undeleted = []
         users = @gate.users

@@ -37,24 +37,34 @@ module Cloudpatrol
         return stopped, unstopped
       end
 
-      def clean_instances allowed_age
+
+      #clean out expired instances that are not opsworks instance and not in the specified white list
+      def clean_instances(allowed_age, whitelist=nil)
         deleted = []
         undeleted = []
         @gate.instances.each do |instance|
-          if (Time.now - instance.launch_time).to_i > allowed_age.days and instance.status != :terminated
-            begin
-              instance.api_termination_disabled=false
-              instance.delete
-              deleted << instance.inspect
-            rescue AWS::Errors::Base => e
-              undeleted << instance.inspect              
+          if is_opsworks_instance instance
+            undeleted << instance.inspect
+          else
+            if expired(instance.launch_time,allowed_age) and instance.status != :terminated
+              begin
+                if whitelisted(instance.instance_id, whitelist)
+                  undeleted << instance.inspect
+                else
+                  instance.api_termination_disabled=false
+                  instance.delete
+                  deleted << instance.inspect
+                end
+              rescue AWS::Errors::Base => e
+                undeleted << instance.inspect
+              end
             end
           end
         end
         return deleted, undeleted
       end
 
-      def clean_security_groups
+      def clean_security_groups whitelist=nil
         deleted = []
         undeleted = []
         protected_groups = []
@@ -77,10 +87,11 @@ module Cloudpatrol
             end
           end
         end
+
         return deleted, undeleted
       end
 
-      def clean_ports_in_default
+      def clean_ports_in_default whitelist=nil
         deleted = []
         undeleted = []
         @gate.security_groups.filter("group-name", "default").each do |sg|
@@ -96,7 +107,7 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_elastic_ips
+      def clean_elastic_ips whitelist=nil
         deleted = []
         undeleted = []
         @gate.elastic_ips.each do |ip|
@@ -128,6 +139,22 @@ module Cloudpatrol
 
       def valid_credentials_map(credentials_map)
         credentials_map[:access_key_id] and credentials_map[:secret_access_key]
+      end
+
+      def is_opsworks_instance(ec2_instance)
+        ec2_instance.tags.to_h.key? 'opsworks:instance'
+      end
+
+      def whitelisted(id, whitelist)
+        if whitelist.nil?
+          false
+        else
+          whitelist.include? id
+        end
+      end
+
+      def expired(launch_time, allowed_age)
+        (Time.now - launch_time).to_i > allowed_age.days
       end
     end
   end

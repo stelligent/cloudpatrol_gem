@@ -7,7 +7,7 @@ module Cloudpatrol
         @gate = cloudformation_client(cred)
       end
 
-      def clean_stacks allowed_age
+      def clean_stacks allowed_age, whitelist=nil
         deleted = []
         undeleted = []
         @gate.stacks.each do |stack|

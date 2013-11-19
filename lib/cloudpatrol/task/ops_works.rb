@@ -9,7 +9,7 @@ module Cloudpatrol
         @sleeptime = 10
       end
 
-      def clean_apps(allowed_age)
+      def clean_apps(allowed_age, whitelist=nil)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
@@ -27,7 +27,7 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_instances(allowed_age)
+      def clean_instances(allowed_age, whitelist=nil)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
@@ -45,7 +45,7 @@ module Cloudpatrol
         return deleted, undeleted
       end
 
-      def clean_layers(allowed_age)
+      def clean_layers(allowed_age, whitelist=nil)
         deleted = []
         undeleted = []
         @gate.describe_stacks[:stacks].each do |stack|
