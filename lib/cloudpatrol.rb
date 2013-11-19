@@ -14,8 +14,8 @@ module Cloudpatrol
     rescue AWS::Errors::Base => e
       response[:formatted] = "AWS error: #{e}"
       false
-    rescue
-      response[:formatted] = "Unknown error"
+    rescue Exception => e
+      response[:formatted] = "Unknown error: #{e}"
       false
     end
 
@@ -46,7 +46,7 @@ module Cloudpatrol
           response: item["response"]
         }
       end
-      response[:log].sort!{ |x,y| x[:time] <=> y[:time] }
+      response[:log].sort!{ |x,y| y[:time] <=> x[:time] }
     else
       response[:success] = false
       response[:error] = "Table doesn't exist"
