@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'cloudpatrol'
 
 # Know what's really hard to find online? A list of all the possible status an opsworks instance can be in
 # required

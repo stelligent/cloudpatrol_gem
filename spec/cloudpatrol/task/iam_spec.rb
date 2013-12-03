@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'Cloudpatrol'
 
 describe Cloudpatrol::Task::IAM do
 

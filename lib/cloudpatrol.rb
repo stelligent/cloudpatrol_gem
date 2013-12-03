@@ -7,16 +7,14 @@ module Cloudpatrol
     response = {}
     table_name ||= "cloudpatrol-log"
 
-    response[:task] = begin
-       successes, failures = Task.const_get(klass).new(aws_credentials).send(method, *args)
-       response[:failures] = failures
-       response[:formatted] = successes
+    begin
+      response[:formatted], response[:failures] = response[:task] = Task.const_get(klass).new(aws_credentials).send(method, *args)
     rescue AWS::Errors::Base => e
       response[:formatted] = "AWS error: #{e}"
-      false
+      response[:task] = false
     rescue Exception => e
       response[:formatted] = "Unknown error: #{e}"
-      false
+      response[:task] = false
     end
 
     response[:log] = begin

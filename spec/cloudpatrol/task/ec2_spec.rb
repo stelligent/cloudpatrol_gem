@@ -1,4 +1,4 @@
-require 'Cloudpatrol'
+require 'spec_helper'
 
 describe Cloudpatrol::Task::EC2 do
 
