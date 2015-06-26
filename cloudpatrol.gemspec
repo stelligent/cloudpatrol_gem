@@ -29,7 +29,6 @@ lib/cloudpatrol.rb
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('aruba')
-  s.add_development_dependency('aws-sdk', '1.24.0')
   s.add_development_dependency('simplecov')
   s.add_runtime_dependency('gli', '2.6.0')
   s.add_runtime_dependency('aws-sdk', '1.24.0')
