@@ -25,12 +25,12 @@ lib/cloudpatrol.rb
   s.rdoc_options << '--title' << 'cloudpatrol' << '--main' << 'README.rdoc' << '-ri'
   s.bindir = 'bin'
   s.executables << 'cloudpatrol'
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.3.6'
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('aruba')
   s.add_development_dependency('simplecov')
-  s.add_runtime_dependency('gli', '2.6.0')
-  s.add_runtime_dependency('aws-sdk', '1.24.0')
+  s.add_runtime_dependency('gli')
+  s.add_runtime_dependency('aws-sdk')
   s.add_dependency('json')
 end
